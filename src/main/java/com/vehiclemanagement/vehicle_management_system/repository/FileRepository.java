@@ -123,6 +123,7 @@ public abstract class FileRepository<T extends BaseEntity> {
         return findAll().size();
     }
 
+    // Clears the file and writes the whole list back fresh
     private void rewriteAll(List<T> all) {
         StringBuilder sb = new StringBuilder();
         for (T e : all) sb.append(e.toLine()).append(System.lineSeparator());
