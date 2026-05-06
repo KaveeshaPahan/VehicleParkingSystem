@@ -109,7 +109,7 @@ public abstract class FileRepository<T extends BaseEntity> {
         return Optional.of(entity);
     }
 
-    /** Delete entity with the given id. */
+    // Deletes an item by removing it and rewriting the file
     public synchronized boolean deleteById(String id) {
         List<T> all = findAll();
         int before = all.size();
