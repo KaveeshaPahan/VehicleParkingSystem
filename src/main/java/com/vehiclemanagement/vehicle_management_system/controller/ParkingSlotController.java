@@ -47,7 +47,7 @@ public class ParkingSlotController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-
+    //delete vehical slot
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, Object>> delete(@PathVariable String id) {
         if (!slotService.delete(id)) return ResponseEntity.notFound().build();
