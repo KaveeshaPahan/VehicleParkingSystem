@@ -69,7 +69,8 @@ public abstract class FileRepository<T extends BaseEntity> {
         }
         return list;
     }
-
+    
+    // Looks through the list to find one item by its ID
     public Optional<T> findById(String id) {
         if (id == null) return Optional.empty();
         return findAll().stream().filter(e -> id.equals(e.getId())).findFirst();
