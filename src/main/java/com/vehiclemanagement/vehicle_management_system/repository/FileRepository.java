@@ -28,12 +28,14 @@ public abstract class FileRepository<T extends BaseEntity> {
     private final Path filePath;
     private final Function<String, T> deserializer;
 
+    // Setup the folder path and the tool to read the data
     protected FileRepository(String fileName, Function<String, T> deserializer) {
         this.filePath = Paths.get(DATA_DIR, fileName);
         this.deserializer = deserializer;
         ensureFileExists();
     }
-
+    
+    // Creates the data folder and file if they don't exist yet
     private synchronized void ensureFileExists() {
         try {
             Path dir = Paths.get(DATA_DIR);
@@ -69,7 +71,7 @@ public abstract class FileRepository<T extends BaseEntity> {
         }
         return list;
     }
-    
+
     // Looks through the list to find one item by its ID
     public Optional<T> findById(String id) {
         if (id == null) return Optional.empty();
