@@ -34,7 +34,7 @@ public abstract class FileRepository<T extends BaseEntity> {
         this.deserializer = deserializer;
         ensureFileExists();
     }
-    
+
     // Creates the data folder and file if they don't exist yet
     private synchronized void ensureFileExists() {
         try {
