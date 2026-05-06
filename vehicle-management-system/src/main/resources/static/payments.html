@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Payments | Vehicle Management System</title>
+<link rel="stylesheet" href="/css/style.css" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">🚗</div>
+      <div class="brand-text">VMS<small>Vehicle Mgmt</small></div>
+    </div>
+    <nav class="nav">
+      <a href="/index.html"><span class="nav-icon">📊</span><span>Dashboard</span></a>
+      <a href="/profile.html" data-customer-only><span class="nav-icon">👤</span><span>My Profile</span></a>
+      <a href="/users.html" data-admin-only><span class="nav-icon">👥</span><span>Users</span></a>
+      <a href="/vehicles.html"><span class="nav-icon">🚙</span><span>Vehicles</span></a>
+      <a href="/slots.html"><span class="nav-icon">🅿️</span><span>Parking Slots</span></a>
+      <a href="/bookings.html"><span class="nav-icon">📅</span><span>Bookings</span></a>
+      <a href="/payments.html"><span class="nav-icon">💳</span><span>Payments</span></a>
+      <a href="/feedback.html"><span class="nav-icon">💬</span><span>Feedback</span></a>
+      <a href="/reports.html" data-admin-only><span class="nav-icon">📈</span><span>Reports & History</span></a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="page-header">
+      <div>
+        <div class="page-title" id="pageTitle">Payment Management</div>
+        <div class="page-subtitle" id="pageSubtitle">Track all payments against bookings</div>
+      </div>
+      <button class="btn btn-primary" onclick="openCreate()">➕ Add Payment</button>
+    </div>
+
+    <div class="toolbar">
+      <div class="search-box">
+        <input id="search" placeholder="Search by method, status, txn id or notes…" oninput="reload()">
+      </div>
+      <select id="filterStatus" onchange="reload()" style="max-width:200px">
+        <option value="">All statuses</option>
+        <option>PENDING</option>
+        <option>PAID</option>
+        <option>REFUNDED</option>
+        <option>FAILED</option>
+      </select>
+      <button class="btn btn-secondary" onclick="reload()">🔄 Refresh</button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Booking</th>
+            <th>Amount</th>
+            <th>Method</th>
+            <th>Status</th>
+            <th>Paid At</th>
+            <th>Txn Id</th>
+            <th class="col-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<div class="modal-backdrop" id="payModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Add Payment</div>
+      <button class="modal-close" onclick="closeModal('payModal')">×</button>
+    </div>
+    <form id="payForm" onsubmit="onSubmit(event)">
+      <input type="hidden" id="f_id" />
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Booking *</label>
+          <select id="f_booking" required onchange="onBookingChange()"></select>
+        </div>
+        <div class="form-group">
+          <label>User</label>
+          <select id="f_user"></select>
+        </div>
+        <div class="form-group">
+          <label>Amount (Rs) *</label>
+          <input id="f_amount" type="number" min="0.01" step="0.5" required />
+        </div>
+        <div class="form-group">
+          <label>Method</label>
+          <select id="f_method">
+            <option value="CASH">CASH</option>
+            <option value="CARD">CARD</option>
+            <option value="ONLINE">ONLINE</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="f_status">
+            <option value="PENDING">PENDING</option>
+            <option value="PAID">PAID</option>
+            <option value="REFUNDED">REFUNDED</option>
+            <option value="FAILED">FAILED</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Transaction Id</label>
+          <input id="f_txn" />
+        </div>
+        <div class="form-group" style="grid-column: span 2;">
+          <label>Notes</label>
+          <textarea id="f_notes" placeholder="Optional notes…"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('payModal')">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="/js/auth.js"></script>
+<script>requireAuth(); renderTopbar('Payments');</script>
+<script src="/js/api.js"></script>
+<script>
+let usersIndex = {}, bookingsIndex = {};
+const ME = getCurrentUser();
+const ADMIN = isAdmin();
+
+if (!ADMIN) {
+  document.getElementById('pageTitle').textContent = 'My Payments';
+  document.getElementById('pageSubtitle').textContent = 'Your payment history';
+}
+
+async function loadIndices() {
+  const [users, bookings] = await Promise.all([
+    ADMIN ? API.get('/api/users') : Promise.resolve([ME]),
+    ADMIN ? API.get('/api/bookings') : API.get('/api/bookings?userId=' + ME.id),
+  ]);
+  usersIndex = Object.fromEntries(users.map(u => [u.id, u]));
+  bookingsIndex = Object.fromEntries(bookings.map(b => [b.id, b]));
+
+  if (ADMIN) {
+    document.getElementById('f_user').innerHTML = '<option value="">-- Select user --</option>' +
+      users.map(u => `<option value="${u.id}">${escapeHtml(u.name)}</option>`).join('');
+  } else {
+    const sel = document.getElementById('f_user');
+    sel.innerHTML = `<option value="${ME.id}" selected>${escapeHtml(ME.name)}</option>`;
+    sel.disabled = true;
+  }
+  document.getElementById('f_booking').innerHTML = '<option value="">-- Select booking --</option>' +
+    bookings.map(b => {
+      const u = usersIndex[b.userId];
+      return `<option value="${b.id}" data-user="${b.userId}" data-amount="${b.totalAmount}">
+        ${u ? escapeHtml(u.name) : '?'} - ${fmtMoney(b.totalAmount)} - ${escapeHtml(b.status || '')}
+      </option>`;
+    }).join('');
+}
+
+function onBookingChange() {
+  const sel = document.getElementById('f_booking');
+  const opt = sel.options[sel.selectedIndex];
+  if (opt && opt.value) {
+    document.getElementById('f_amount').value = opt.dataset.amount || '';
+    document.getElementById('f_user').value = opt.dataset.user || '';
+  }
+}
+
+async function reload() {
+  const status = document.getElementById('filterStatus').value;
+  const q = document.getElementById('search').value.trim();
+  let url;
+  if (ADMIN) {
+    url = '/api/payments';
+    if (status) url += '?status=' + encodeURIComponent(status);
+    else if (q) url += '?q=' + encodeURIComponent(q);
+  } else {
+    url = '/api/payments?userId=' + encodeURIComponent(ME.id);
+  }
+  try {
+    const list = await API.get(url);
+    const tbody = document.getElementById('rows');
+    if (!list.length) {
+      tbody.innerHTML = `<tr><td colspan="8"><div class="empty"><div class="empty-icon">💳</div>No payments yet.</div></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = list.map(p => {
+      const u = usersIndex[p.userId];
+      const b = bookingsIndex[p.bookingId];
+      return `<tr>
+        <td><strong>${u ? escapeHtml(u.name) : '<em>?</em>'}</strong></td>
+        <td>${b ? escapeHtml((b.id || '').substring(0,8)) + '…' : '<em>?</em>'}</td>
+        <td>${fmtMoney(p.amount)}</td>
+        <td><span class="badge badge-info">${escapeHtml(p.method || '-')}</span></td>
+        <td><span class="badge ${badgeForPay(p.status)}">${escapeHtml(p.status || '-')}</span></td>
+        <td>${p.paidAt ? fmtDateTime(p.paidAt) : '-'}</td>
+        <td>${escapeHtml(p.transactionId || '-')}</td>
+        <td class="col-actions">
+          <button class="btn btn-sm btn-secondary" onclick='openEdit(${JSON.stringify(JSON.stringify(p))})'>✏️ Edit</button>
+          <button class="btn btn-sm btn-danger" onclick="del('${p.id}')">🗑️ Delete</button>
+        </td>
+      </tr>`;
+    }).join('');
+  } catch (e) { toast('Failed to load payments: ' + e.message, 'error'); }
+}
+
+function badgeForPay(s) {
+  const u = (s || '').toUpperCase();
+  if (u === 'PAID') return 'badge-success';
+  if (u === 'PENDING') return 'badge-warning';
+  if (u === 'FAILED') return 'badge-danger';
+  if (u === 'REFUNDED') return 'badge-info';
+  return 'badge-primary';
+}
+
+function openCreate() {
+  document.getElementById('modalTitle').textContent = 'Add Payment';
+  document.getElementById('payForm').reset();
+  document.getElementById('f_id').value = '';
+  if (!ADMIN) document.getElementById('f_user').value = ME.id;
+  openModal('payModal');
+}
+
+function openEdit(s) {
+  const p = JSON.parse(s);
+  document.getElementById('modalTitle').textContent = 'Edit Payment';
+  document.getElementById('f_id').value = p.id;
+  document.getElementById('f_booking').value = p.bookingId || '';
+  document.getElementById('f_user').value = p.userId || '';
+  document.getElementById('f_amount').value = p.amount || 0;
+  document.getElementById('f_method').value = p.method || 'CASH';
+  document.getElementById('f_status').value = p.status || 'PENDING';
+  document.getElementById('f_txn').value = p.transactionId || '';
+  document.getElementById('f_notes').value = p.notes || '';
+  openModal('payModal');
+}
+
+async function onSubmit(e) {
+  e.preventDefault();
+  const id = document.getElementById('f_id').value;
+  const body = {
+    bookingId: document.getElementById('f_booking').value,
+    userId: document.getElementById('f_user').value,
+    amount: parseFloat(document.getElementById('f_amount').value) || 0,
+    method: document.getElementById('f_method').value,
+    status: document.getElementById('f_status').value,
+    transactionId: document.getElementById('f_txn').value.trim(),
+    notes: document.getElementById('f_notes').value.trim(),
+  };
+  try {
+    if (id) { await API.put('/api/payments/' + id, body); toast('Payment updated', 'success'); }
+    else    { await API.post('/api/payments', body); toast('Payment created', 'success'); }
+    closeModal('payModal');
+    reload();
+  } catch (err) { toast('Save failed: ' + err.message, 'error'); }
+}
+
+async function del(id) {
+  if (!confirm('Delete this payment?')) return;
+  try { await API.del('/api/payments/' + id); toast('Payment deleted', 'success'); reload(); }
+  catch (e) { toast('Delete failed: ' + e.message, 'error'); }
+}
+
+(async () => { await loadIndices(); reload(); })();
+</script>
+</body>
+</html>

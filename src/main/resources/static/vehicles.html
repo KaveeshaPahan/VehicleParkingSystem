@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Vehicles | Vehicle Management System</title>
+<link rel="stylesheet" href="/css/style.css" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">🚗</div>
+      <div class="brand-text">VMS<small>Vehicle Mgmt</small></div>
+    </div>
+    <nav class="nav">
+      <a href="/index.html"><span class="nav-icon">📊</span><span>Dashboard</span></a>
+      <a href="/profile.html" data-customer-only><span class="nav-icon">👤</span><span>My Profile</span></a>
+      <a href="/users.html" data-admin-only><span class="nav-icon">👥</span><span>Users</span></a>
+      <a href="/vehicles.html"><span class="nav-icon">🚙</span><span>Vehicles</span></a>
+      <a href="/slots.html"><span class="nav-icon">🅿️</span><span>Parking Slots</span></a>
+      <a href="/bookings.html"><span class="nav-icon">📅</span><span>Bookings</span></a>
+      <a href="/payments.html"><span class="nav-icon">💳</span><span>Payments</span></a>
+      <a href="/feedback.html"><span class="nav-icon">💬</span><span>Feedback</span></a>
+      <a href="/reports.html" data-admin-only><span class="nav-icon">📈</span><span>Reports & History</span></a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="page-header">
+      <div>
+        <div class="page-title" id="pageTitle">Vehicle Management</div>
+        <div class="page-subtitle" id="pageSubtitle">Manage all registered vehicles</div>
+      </div>
+      <button class="btn btn-primary" onclick="openCreate()">➕ Add Vehicle</button>
+    </div>
+
+    <div class="toolbar">
+      <div class="search-box">
+        <input id="search" placeholder="Search by plate, brand, model or type…" oninput="reload()">
+      </div>
+      <button class="btn btn-secondary" onclick="reload()">🔄 Refresh</button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Plate No</th>
+            <th>Brand & Model</th>
+            <th>Type</th>
+            <th>Color</th>
+            <th>Year</th>
+            <th>Owner</th>
+            <th class="col-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<div class="modal-backdrop" id="vehicleModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Add Vehicle</div>
+      <button class="modal-close" onclick="closeModal('vehicleModal')">×</button>
+    </div>
+    <form id="vehicleForm" onsubmit="onSubmit(event)">
+      <input type="hidden" id="f_id" />
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Plate Number *</label>
+          <input id="f_plate" required />
+        </div>
+        <div class="form-group">
+          <label>Owner *</label>
+          <select id="f_owner" required></select>
+        </div>
+        <div class="form-group">
+          <label>Brand</label>
+          <input id="f_brand" />
+        </div>
+        <div class="form-group">
+          <label>Model</label>
+          <input id="f_model" />
+        </div>
+        <div class="form-group">
+          <label>Type</label>
+          <select id="f_type">
+            <option value="CAR">CAR</option>
+            <option value="BIKE">BIKE</option>
+            <option value="VAN">VAN</option>
+            <option value="TRUCK">TRUCK</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Color</label>
+          <input id="f_color" />
+        </div>
+        <div class="form-group">
+          <label>Year</label>
+          <input id="f_year" type="number" min="1900" max="2099" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('vehicleModal')">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="/js/auth.js"></script>
+<script>requireAuth(); renderTopbar('Vehicles');</script>
+<script src="/js/api.js"></script>
+<script>
+let usersIndex = {};
+const ME = getCurrentUser();
+const ADMIN = isAdmin();
+
+if (!ADMIN) {
+  document.getElementById('pageTitle').textContent = 'My Vehicles';
+  document.getElementById('pageSubtitle').textContent = 'Vehicles you have registered';
+}
+
+async function loadUsersIndex() {
+  try {
+    if (ADMIN) {
+      const users = await API.get('/api/users');
+      usersIndex = Object.fromEntries(users.map(u => [u.id, u]));
+      const sel = document.getElementById('f_owner');
+      sel.innerHTML = '<option value="">-- Select owner --</option>' +
+        users.map(u => `<option value="${u.id}">${escapeHtml(u.name)} (${escapeHtml(u.email)})</option>`).join('');
+    } else {
+      // customer: only their own user is needed and is auto-selected
+      usersIndex = { [ME.id]: ME };
+      const sel = document.getElementById('f_owner');
+      sel.innerHTML = `<option value="${ME.id}" selected>${escapeHtml(ME.name)}</option>`;
+      sel.disabled = true;
+    }
+  } catch (e) { /* ignore */ }
+}
+
+async function reload() {
+  const q = document.getElementById('search').value.trim();
+  let url;
+  if (ADMIN) {
+    url = q ? `/api/vehicles?q=${encodeURIComponent(q)}` : '/api/vehicles';
+  } else {
+    // customer always filtered to their own
+    url = `/api/vehicles?ownerId=${encodeURIComponent(ME.id)}`;
+  }
+  try {
+    const list = await API.get(url);
+    const tbody = document.getElementById('rows');
+    if (!list.length) {
+      tbody.innerHTML = `<tr><td colspan="7"><div class="empty"><div class="empty-icon">🚙</div>No vehicles. Click "Add Vehicle" to register one.</div></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = list.map(v => {
+      const owner = usersIndex[v.ownerId];
+      return `<tr>
+        <td><strong>${escapeHtml(v.plateNumber)}</strong></td>
+        <td>${escapeHtml(v.brand || '')} ${escapeHtml(v.model || '')}</td>
+        <td><span class="badge badge-info">${escapeHtml(v.type || '-')}</span></td>
+        <td>${escapeHtml(v.color || '-')}</td>
+        <td>${v.year || '-'}</td>
+        <td>${owner ? escapeHtml(owner.name) : '<em>unknown</em>'}</td>
+        <td class="col-actions">
+          <button class="btn btn-sm btn-secondary" onclick='openEdit(${JSON.stringify(JSON.stringify(v))})'>✏️ Edit</button>
+          <button class="btn btn-sm btn-danger" onclick="del('${v.id}')">🗑️ Delete</button>
+        </td>
+      </tr>`;
+    }).join('');
+  } catch (e) {
+    toast('Failed to load vehicles: ' + e.message, 'error');
+  }
+}
+
+function openCreate() {
+  document.getElementById('modalTitle').textContent = 'Add Vehicle';
+  document.getElementById('vehicleForm').reset();
+  document.getElementById('f_id').value = '';
+  // for customers, auto-set owner to themselves and lock the field
+  if (!ADMIN) document.getElementById('f_owner').value = ME.id;
+  openModal('vehicleModal');
+}
+
+function openEdit(s) {
+  const v = JSON.parse(s);
+  document.getElementById('modalTitle').textContent = 'Edit Vehicle';
+  document.getElementById('f_id').value = v.id;
+  document.getElementById('f_plate').value = v.plateNumber || '';
+  document.getElementById('f_owner').value = v.ownerId || '';
+  document.getElementById('f_brand').value = v.brand || '';
+  document.getElementById('f_model').value = v.model || '';
+  document.getElementById('f_type').value = v.type || 'CAR';
+  document.getElementById('f_color').value = v.color || '';
+  document.getElementById('f_year').value = v.year || '';
+  openModal('vehicleModal');
+}
+
+async function onSubmit(e) {
+  e.preventDefault();
+  const id = document.getElementById('f_id').value;
+  const body = {
+    plateNumber: document.getElementById('f_plate').value.trim(),
+    ownerId: document.getElementById('f_owner').value,
+    brand: document.getElementById('f_brand').value.trim(),
+    model: document.getElementById('f_model').value.trim(),
+    type: document.getElementById('f_type').value,
+    color: document.getElementById('f_color').value.trim(),
+    year: parseInt(document.getElementById('f_year').value) || 0,
+  };
+  try {
+    if (id) { await API.put('/api/vehicles/' + id, body); toast('Vehicle updated', 'success'); }
+    else    { await API.post('/api/vehicles', body); toast('Vehicle created', 'success'); }
+    closeModal('vehicleModal');
+    reload();
+  } catch (err) { toast('Save failed: ' + err.message, 'error'); }
+}
+
+async function del(id) {
+  if (!confirm('Delete this vehicle?')) return;
+  try { await API.del('/api/vehicles/' + id); toast('Vehicle deleted', 'success'); reload(); }
+  catch (e) { toast('Delete failed: ' + e.message, 'error'); }
+}
+
+(async () => { await loadUsersIndex(); reload(); })();
+</script>
+</body>
+</html>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dashboard | Vehicle Management System</title>
+<link rel="stylesheet" href="/css/style.css" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">🚗</div>
+      <div class="brand-text">VMS<small>Vehicle Mgmt</small></div>
+    </div>
+    <nav class="nav">
+      <a href="/index.html"><span class="nav-icon">📊</span><span>Dashboard</span></a>
+      <a href="/profile.html" data-customer-only><span class="nav-icon">👤</span><span>My Profile</span></a>
+      <a href="/users.html" data-admin-only><span class="nav-icon">👥</span><span>Users</span></a>
+      <a href="/vehicles.html"><span class="nav-icon">🚙</span><span>Vehicles</span></a>
+      <a href="/slots.html"><span class="nav-icon">🅿️</span><span>Parking Slots</span></a>
+      <a href="/bookings.html"><span class="nav-icon">📅</span><span>Bookings</span></a>
+      <a href="/payments.html"><span class="nav-icon">💳</span><span>Payments</span></a>
+      <a href="/feedback.html"><span class="nav-icon">💬</span><span>Feedback</span></a>
+      <a href="/reports.html" data-admin-only><span class="nav-icon">📈</span><span>Reports & History</span></a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Welcome to VMS Dashboard</div>
+        <div class="page-subtitle">Real-time overview of your parking operations</div>
+      </div>
+      <button class="btn btn-secondary" onclick="loadDashboard()">🔄 Refresh</button>
+    </div>
+
+    <div class="stats-grid" id="statsGrid"></div>
+
+    <div class="card" data-admin-only>
+      <div class="card-title">Booking Status Overview</div>
+      <div id="statusChart" class="bar-chart"><div class="empty">Loading...</div></div>
+    </div>
+
+    <div style="height:16px" data-admin-only></div>
+
+    <div class="card" data-admin-only>
+      <div class="card-title">Vehicles by Type</div>
+      <div id="typeChart" class="bar-chart"><div class="empty">Loading...</div></div>
+    </div>
+  </main>
+</div>
+
+<script src="/js/auth.js"></script>
+<script>requireAuth(); renderTopbar('Dashboard');</script>
+<script src="/js/api.js"></script>
+<script>
+const ME = getCurrentUser();
+const ADMIN = isAdmin();
+
+async function loadDashboard() {
+  try {
+    if (ADMIN) {
+      await loadAdminDashboard();
+    } else {
+      await loadCustomerDashboard();
+    }
+  } catch (e) {
+    toast('Could not load stats: ' + e.message, 'error');
+  }
+}
+
+async function loadAdminDashboard() {
+  const data = await API.get('/api/reports/dashboard');
+  const stats = [
+    { label: 'Total Users',       value: data.totalUsers,       icon: '👥', cls: '' },
+    { label: 'Total Vehicles',    value: data.totalVehicles,    icon: '🚙', cls: 'blue' },
+    { label: 'Available Slots',   value: data.availableSlots,   icon: '🅿️', cls: 'green' },
+    { label: 'Occupied Slots',    value: data.occupiedSlots,    icon: '🚗', cls: 'amber' },
+    { label: 'Active Bookings',   value: data.activeBookings,   icon: '📅', cls: 'blue' },
+    { label: 'Total Bookings',    value: data.totalBookings,    icon: '📋', cls: '' },
+    { label: 'Paid Amount',       value: fmtMoney(data.paidAmount),    icon: '💳', cls: 'green' },
+    { label: 'Pending Payments',  value: fmtMoney(data.pendingAmount), icon: '⏳', cls: 'amber' },
+    { label: 'Total Revenue',     value: fmtMoney(data.totalRevenue), icon: '💰', cls: 'green' },
+    { label: 'Avg. Rating',       value: (data.averageRating || 0).toFixed(1) + ' ⭐', icon: '⭐', cls: 'amber' },
+  ];
+  renderStats(stats);
+
+  try {
+    const status = await API.get('/api/reports/bookings-by-status');
+    renderBars('statusChart', status);
+  } catch (e) { /* ignore */ }
+
+  try {
+    const types = await API.get('/api/reports/vehicles-by-type');
+    renderBars('typeChart', types);
+  } catch (e) { /* ignore */ }
+}
+
+async function loadCustomerDashboard() {
+  // pull only this user's data
+  const [vehicles, bookings, payments, feedback] = await Promise.all([
+    API.get('/api/vehicles?ownerId=' + ME.id),
+    API.get('/api/bookings?userId=' + ME.id),
+    API.get('/api/payments?userId=' + ME.id),
+    API.get('/api/feedback?userId=' + ME.id),
+  ]);
+  const activeBookings = bookings.filter(b => 'CONFIRMED' === (b.status || '').toUpperCase()).length;
+  const completedBookings = bookings.filter(b => 'COMPLETED' === (b.status || '').toUpperCase()).length;
+  const paidTotal = payments.filter(p => 'PAID' === (p.status || '').toUpperCase())
+                            .reduce((s, p) => s + (p.amount || 0), 0);
+  const pendingTotal = payments.filter(p => 'PENDING' === (p.status || '').toUpperCase())
+                               .reduce((s, p) => s + (p.amount || 0), 0);
+  const stats = [
+    { label: 'My Vehicles',       value: vehicles.length, icon: '🚙', cls: 'blue' },
+    { label: 'My Bookings',       value: bookings.length, icon: '📅', cls: '' },
+    { label: 'Active Bookings',   value: activeBookings,  icon: '✅', cls: 'green' },
+    { label: 'Completed',         value: completedBookings, icon: '🏁', cls: 'blue' },
+    { label: 'Paid Amount',       value: fmtMoney(paidTotal),    icon: '💳', cls: 'green' },
+    { label: 'Pending Payments',  value: fmtMoney(pendingTotal), icon: '⏳', cls: 'amber' },
+    { label: 'Feedback Sent',     value: feedback.length, icon: '💬', cls: 'blue' },
+  ];
+  renderStats(stats);
+}
+
+function renderStats(stats) {
+  document.getElementById('statsGrid').innerHTML = stats.map(s => `
+    <div class="stat">
+      <div class="stat-icon ${s.cls}">${s.icon}</div>
+      <div>
+        <div class="stat-value">${escapeHtml(String(s.value))}</div>
+        <div class="stat-label">${s.label}</div>
+      </div>
+    </div>`).join('');
+}
+
+function renderBars(id, obj) {
+  const target = document.getElementById(id);
+  const entries = Object.entries(obj || {});
+  if (!entries.length) { target.innerHTML = '<div class="empty">No data yet</div>'; return; }
+  const max = Math.max(...entries.map(([, v]) => Number(v) || 0)) || 1;
+  target.innerHTML = entries.map(([k, v]) => `
+    <div class="bar-row">
+      <div class="bar-label">${escapeHtml(k)}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${(v/max)*100}%"></div></div>
+      <div class="bar-value">${v}</div>
+    </div>`).join('');
+}
+
+loadDashboard();
+</script>
+</body>
+</html>

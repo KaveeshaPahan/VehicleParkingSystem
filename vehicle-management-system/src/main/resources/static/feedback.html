@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Feedback | Vehicle Management System</title>
+<link rel="stylesheet" href="/css/style.css" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">🚗</div>
+      <div class="brand-text">VMS<small>Vehicle Mgmt</small></div>
+    </div>
+    <nav class="nav">
+      <a href="/index.html"><span class="nav-icon">📊</span><span>Dashboard</span></a>
+      <a href="/profile.html" data-customer-only><span class="nav-icon">👤</span><span>My Profile</span></a>
+      <a href="/users.html" data-admin-only><span class="nav-icon">👥</span><span>Users</span></a>
+      <a href="/vehicles.html"><span class="nav-icon">🚙</span><span>Vehicles</span></a>
+      <a href="/slots.html"><span class="nav-icon">🅿️</span><span>Parking Slots</span></a>
+      <a href="/bookings.html"><span class="nav-icon">📅</span><span>Bookings</span></a>
+      <a href="/payments.html"><span class="nav-icon">💳</span><span>Payments</span></a>
+      <a href="/feedback.html"><span class="nav-icon">💬</span><span>Feedback</span></a>
+      <a href="/reports.html" data-admin-only><span class="nav-icon">📈</span><span>Reports & History</span></a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="page-header">
+      <div>
+        <div class="page-title" id="pageTitle">Feedback Management</div>
+        <div class="page-subtitle" id="pageSubtitle">Customer reviews and complaints</div>
+      </div>
+      <button class="btn btn-primary" onclick="openCreate()">➕ Add Feedback</button>
+    </div>
+
+    <div class="toolbar">
+      <div class="search-box">
+        <input id="search" placeholder="Search by subject, message or status…" oninput="reload()">
+      </div>
+      <button class="btn btn-secondary" onclick="reload()">🔄 Refresh</button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Subject</th>
+            <th>Rating</th>
+            <th>Message</th>
+            <th>Status</th>
+            <th>Created</th>
+            <th class="col-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<div class="modal-backdrop" id="fbModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Add Feedback</div>
+      <button class="modal-close" onclick="closeModal('fbModal')">×</button>
+    </div>
+    <form id="fbForm" onsubmit="onSubmit(event)">
+      <input type="hidden" id="f_id" />
+      <div class="form-grid">
+        <div class="form-group">
+          <label>User *</label>
+          <select id="f_user" required></select>
+        </div>
+        <div class="form-group">
+          <label>Rating (1-5)</label>
+          <input id="f_rating" type="number" min="1" max="5" value="5" />
+        </div>
+        <div class="form-group" style="grid-column: span 2;">
+          <label>Subject *</label>
+          <input id="f_subject" required />
+        </div>
+        <div class="form-group" style="grid-column: span 2;">
+          <label>Message *</label>
+          <textarea id="f_message" required></textarea>
+        </div>
+        <div class="form-group" style="grid-column: span 2;">
+          <label>Status</label>
+          <select id="f_status">
+            <option value="OPEN">OPEN</option>
+            <option value="REVIEWED">REVIEWED</option>
+            <option value="RESOLVED">RESOLVED</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('fbModal')">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="/js/auth.js"></script>
+<script>requireAuth(); renderTopbar('Feedback');</script>
+<script src="/js/api.js"></script>
+<script>
+let usersIndex = {};
+const ME = getCurrentUser();
+const ADMIN = isAdmin();
+
+if (!ADMIN) {
+  document.getElementById('pageTitle').textContent = 'My Feedback';
+  document.getElementById('pageSubtitle').textContent = 'Submit feedback or browse your previous messages';
+}
+
+async function loadUsers() {
+  try {
+    if (ADMIN) {
+      const users = await API.get('/api/users');
+      usersIndex = Object.fromEntries(users.map(u => [u.id, u]));
+      document.getElementById('f_user').innerHTML = '<option value="">-- Select user --</option>' +
+        users.map(u => `<option value="${u.id}">${escapeHtml(u.name)}</option>`).join('');
+    } else {
+      usersIndex = { [ME.id]: ME };
+      const sel = document.getElementById('f_user');
+      sel.innerHTML = `<option value="${ME.id}" selected>${escapeHtml(ME.name)}</option>`;
+      sel.disabled = true;
+    }
+  } catch (e) { /* ignore */ }
+}
+
+function stars(n) {
+  n = Number(n) || 0;
+  return '⭐'.repeat(Math.max(0, Math.min(5, n)));
+}
+
+async function reload() {
+  const q = document.getElementById('search').value.trim();
+  let url;
+  if (ADMIN) {
+    url = q ? `/api/feedback?q=${encodeURIComponent(q)}` : '/api/feedback';
+  } else {
+    url = `/api/feedback?userId=${encodeURIComponent(ME.id)}`;
+  }
+  try {
+    const list = await API.get(url);
+    const tbody = document.getElementById('rows');
+    if (!list.length) {
+      tbody.innerHTML = `<tr><td colspan="7"><div class="empty"><div class="empty-icon">💬</div>No feedback yet.</div></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = list.map(f => {
+      const u = usersIndex[f.userId];
+      return `<tr>
+        <td><strong>${u ? escapeHtml(u.name) : '<em>?</em>'}</strong></td>
+        <td>${escapeHtml(f.subject || '-')}</td>
+        <td>${stars(f.rating)}</td>
+        <td>${escapeHtml((f.message || '').slice(0, 80))}${(f.message || '').length > 80 ? '…' : ''}</td>
+        <td><span class="badge ${badgeFor(f.status)}">${escapeHtml(f.status || '-')}</span></td>
+        <td>${fmtDateTime(f.createdAt)}</td>
+        <td class="col-actions">
+          <button class="btn btn-sm btn-secondary" onclick='openEdit(${JSON.stringify(JSON.stringify(f))})'>✏️ Edit</button>
+          <button class="btn btn-sm btn-danger" onclick="del('${f.id}')">🗑️ Delete</button>
+        </td>
+      </tr>`;
+    }).join('');
+  } catch (e) { toast('Failed to load feedback: ' + e.message, 'error'); }
+}
+
+function openCreate() {
+  document.getElementById('modalTitle').textContent = 'Add Feedback';
+  document.getElementById('fbForm').reset();
+  document.getElementById('f_id').value = '';
+  document.getElementById('f_rating').value = 5;
+  if (!ADMIN) document.getElementById('f_user').value = ME.id;
+  openModal('fbModal');
+}
+
+function openEdit(str) {
+  const f = JSON.parse(str);
+  document.getElementById('modalTitle').textContent = 'Edit Feedback';
+  document.getElementById('f_id').value = f.id;
+  document.getElementById('f_user').value = f.userId || '';
+  document.getElementById('f_subject').value = f.subject || '';
+  document.getElementById('f_message').value = f.message || '';
+  document.getElementById('f_rating').value = f.rating || 5;
+  document.getElementById('f_status').value = f.status || 'OPEN';
+  openModal('fbModal');
+}
+
+async function onSubmit(e) {
+  e.preventDefault();
+  const id = document.getElementById('f_id').value;
+  const body = {
+    userId: document.getElementById('f_user').value,
+    subject: document.getElementById('f_subject').value.trim(),
+    message: document.getElementById('f_message').value.trim(),
+    rating: parseInt(document.getElementById('f_rating').value) || 0,
+    status: document.getElementById('f_status').value,
+  };
+  try {
+    if (id) { await API.put('/api/feedback/' + id, body); toast('Feedback updated', 'success'); }
+    else    { await API.post('/api/feedback', body); toast('Feedback submitted', 'success'); }
+    closeModal('fbModal');
+    reload();
+  } catch (err) { toast('Save failed: ' + err.message, 'error'); }
+}
+
+async function del(id) {
+  if (!confirm('Delete this feedback?')) return;
+  try { await API.del('/api/feedback/' + id); toast('Feedback deleted', 'success'); reload(); }
+  catch (e) { toast('Delete failed: ' + e.message, 'error'); }
+}
+
+(async () => { await loadUsers(); reload(); })();
+</script>
+</body>
+</html>

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Bookings | Vehicle Management System</title>
+<link rel="stylesheet" href="/css/style.css" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">🚗</div>
+      <div class="brand-text">VMS<small>Vehicle Mgmt</small></div>
+    </div>
+    <nav class="nav">
+      <a href="/index.html"><span class="nav-icon">📊</span><span>Dashboard</span></a>
+      <a href="/profile.html" data-customer-only><span class="nav-icon">👤</span><span>My Profile</span></a>
+      <a href="/users.html" data-admin-only><span class="nav-icon">👥</span><span>Users</span></a>
+      <a href="/vehicles.html"><span class="nav-icon">🚙</span><span>Vehicles</span></a>
+      <a href="/slots.html"><span class="nav-icon">🅿️</span><span>Parking Slots</span></a>
+      <a href="/bookings.html"><span class="nav-icon">📅</span><span>Bookings</span></a>
+      <a href="/payments.html"><span class="nav-icon">💳</span><span>Payments</span></a>
+      <a href="/feedback.html"><span class="nav-icon">💬</span><span>Feedback</span></a>
+      <a href="/reports.html" data-admin-only><span class="nav-icon">📈</span><span>Reports & History</span></a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="page-header">
+      <div>
+        <div class="page-title" id="pageTitle">Parking Booking Management</div>
+        <div class="page-subtitle" id="pageSubtitle">Reserve slots and track bookings</div>
+      </div>
+      <button class="btn btn-primary" onclick="openCreate()">➕ New Booking</button>
+    </div>
+
+    <div class="toolbar">
+      <div class="search-box">
+        <input id="search" placeholder="Filter by status name…" oninput="reload()">
+      </div>
+      <select id="filterStatus" onchange="reload()" style="max-width:200px">
+        <option value="">All statuses</option>
+        <option>CONFIRMED</option>
+        <option>PENDING</option>
+        <option>COMPLETED</option>
+        <option>CANCELLED</option>
+      </select>
+      <button class="btn btn-secondary" onclick="reload()">🔄 Refresh</button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Vehicle</th>
+            <th>Slot</th>
+            <th>Start</th>
+            <th>End</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th class="col-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<div class="modal-backdrop" id="bookingModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">New Booking</div>
+      <button class="modal-close" onclick="closeModal('bookingModal')">×</button>
+    </div>
+    <form id="bookingForm" onsubmit="onSubmit(event)">
+      <input type="hidden" id="f_id" />
+      <div class="form-grid">
+        <div class="form-group">
+          <label>User *</label>
+          <select id="f_user" required onchange="onUserChange()"></select>
+        </div>
+        <div class="form-group">
+          <label>Vehicle *</label>
+          <select id="f_vehicle" required></select>
+        </div>
+        <div class="form-group">
+          <label>Slot *</label>
+          <select id="f_slot" required></select>
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="f_status">
+            <option value="CONFIRMED">CONFIRMED</option>
+            <option value="PENDING">PENDING</option>
+            <option value="COMPLETED">COMPLETED</option>
+            <option value="CANCELLED">CANCELLED</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Start Time *</label>
+          <input id="f_start" type="datetime-local" required />
+        </div>
+        <div class="form-group">
+          <label>End Time *</label>
+          <input id="f_end" type="datetime-local" required />
+        </div>
+        <div class="form-group" style="grid-column: span 2;">
+          <label>Total Amount (auto-calculated if 0)</label>
+          <input id="f_amount" type="number" min="0" step="0.5" value="0" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('bookingModal')">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="/js/auth.js"></script>
+<script>requireAuth(); renderTopbar('Bookings');</script>
+<script src="/js/api.js"></script>
+<script>
+let usersIndex = {}, vehiclesIndex = {}, slotsIndex = {};
+let allVehicles = [];
+const ME = getCurrentUser();
+const ADMIN = isAdmin();
+
+if (!ADMIN) {
+  document.getElementById('pageTitle').textContent = 'My Bookings';
+  document.getElementById('pageSubtitle').textContent = 'Your parking reservations';
+}
+
+async function loadIndices() {
+  const promises = ADMIN
+    ? [API.get('/api/users'), API.get('/api/vehicles'), API.get('/api/slots?available=true')]
+    : [Promise.resolve([ME]), API.get('/api/vehicles?ownerId=' + ME.id), API.get('/api/slots?available=true')];
+  const [users, vehicles, slots] = await Promise.all(promises);
+
+  // For display: also load all slots so the table can resolve slot ids that
+  // are no longer "available"
+  const allSlots = await API.get('/api/slots');
+  slotsIndex = Object.fromEntries(allSlots.map(s => [s.id, s]));
+
+  usersIndex = Object.fromEntries(users.map(u => [u.id, u]));
+  vehiclesIndex = Object.fromEntries(vehicles.map(v => [v.id, v]));
+  allVehicles = vehicles;
+
+  if (ADMIN) {
+    document.getElementById('f_user').innerHTML = '<option value="">-- Select user --</option>' +
+      users.map(u => `<option value="${u.id}">${escapeHtml(u.name)}</option>`).join('');
+  } else {
+    const sel = document.getElementById('f_user');
+    sel.innerHTML = `<option value="${ME.id}" selected>${escapeHtml(ME.name)}</option>`;
+    sel.disabled = true;
+  }
+  document.getElementById('f_slot').innerHTML = '<option value="">-- Select slot --</option>' +
+    slots.map(s => `<option value="${s.id}">${escapeHtml(s.slotNumber)} - ${escapeHtml(s.location || '')} - ${fmtMoney(s.hourlyRate)}/hr</option>`).join('');
+}
+
+function onUserChange() {
+  const userId = document.getElementById('f_user').value;
+  const filtered = allVehicles.filter(v => !userId || v.ownerId === userId);
+  document.getElementById('f_vehicle').innerHTML = '<option value="">-- Select vehicle --</option>' +
+    filtered.map(v => `<option value="${v.id}">${escapeHtml(v.plateNumber)} - ${escapeHtml(v.brand || '')} ${escapeHtml(v.model || '')}</option>`).join('');
+}
+
+async function reload() {
+  const status = document.getElementById('filterStatus').value;
+  let url;
+  if (ADMIN) {
+    url = status ? `/api/bookings?status=${encodeURIComponent(status)}` : '/api/bookings';
+  } else {
+    url = `/api/bookings?userId=${encodeURIComponent(ME.id)}`;
+  }
+  try {
+    let list = await API.get(url);
+    if (!ADMIN && status) list = list.filter(b => (b.status || '').toUpperCase() === status);
+    const q = document.getElementById('search').value.trim().toLowerCase();
+    if (q) list = list.filter(b => (b.status || '').toLowerCase().includes(q));
+
+    const tbody = document.getElementById('rows');
+    if (!list.length) {
+      tbody.innerHTML = `<tr><td colspan="8"><div class="empty"><div class="empty-icon">📅</div>No bookings yet.</div></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = list.map(b => {
+      const u = usersIndex[b.userId], v = vehiclesIndex[b.vehicleId], s = slotsIndex[b.slotId];
+      return `<tr>
+        <td><strong>${u ? escapeHtml(u.name) : '<em>?</em>'}</strong></td>
+        <td>${v ? escapeHtml(v.plateNumber) : '<em>?</em>'}</td>
+        <td>${s ? escapeHtml(s.slotNumber) : '<em>?</em>'}</td>
+        <td>${fmtDateTime(b.startTime)}</td>
+        <td>${fmtDateTime(b.endTime)}</td>
+        <td>${fmtMoney(b.totalAmount)}</td>
+        <td><span class="badge ${badgeFor(b.status)}">${escapeHtml(b.status || '-')}</span></td>
+        <td class="col-actions">
+          <button class="btn btn-sm btn-secondary" onclick='openEdit(${JSON.stringify(JSON.stringify(b))})'>✏️ Edit</button>
+          <button class="btn btn-sm btn-danger" onclick="del('${b.id}')">🗑️ Delete</button>
+        </td>
+      </tr>`;
+    }).join('');
+  } catch (e) { toast('Failed to load bookings: ' + e.message, 'error'); }
+}
+
+function openCreate() {
+  document.getElementById('modalTitle').textContent = 'New Booking';
+  document.getElementById('bookingForm').reset();
+  document.getElementById('f_id').value = '';
+  document.getElementById('f_amount').value = 0;
+  document.getElementById('f_status').value = 'CONFIRMED';
+  if (!ADMIN) document.getElementById('f_user').value = ME.id;
+  onUserChange();
+  // default to next hour
+  const now = new Date(); now.setMinutes(0, 0, 0); now.setHours(now.getHours() + 1);
+  const end = new Date(now); end.setHours(end.getHours() + 2);
+  document.getElementById('f_start').value = isoLocal(now);
+  document.getElementById('f_end').value = isoLocal(end);
+  openModal('bookingModal');
+}
+
+function isoLocal(d) {
+  const tzOffset = d.getTimezoneOffset() * 60000;
+  return new Date(d.getTime() - tzOffset).toISOString().slice(0, 16);
+}
+
+function openEdit(str) {
+  const b = JSON.parse(str);
+  document.getElementById('modalTitle').textContent = 'Edit Booking';
+  document.getElementById('f_id').value = b.id;
+  document.getElementById('f_user').value = b.userId || '';
+  onUserChange();
+  document.getElementById('f_vehicle').value = b.vehicleId || '';
+  document.getElementById('f_slot').value = b.slotId || '';
+  document.getElementById('f_start').value = (b.startTime || '').substring(0, 16);
+  document.getElementById('f_end').value = (b.endTime || '').substring(0, 16);
+  document.getElementById('f_amount').value = b.totalAmount || 0;
+  document.getElementById('f_status').value = b.status || 'CONFIRMED';
+  openModal('bookingModal');
+}
+
+async function onSubmit(e) {
+  e.preventDefault();
+  const id = document.getElementById('f_id').value;
+  const body = {
+    userId: document.getElementById('f_user').value,
+    vehicleId: document.getElementById('f_vehicle').value,
+    slotId: document.getElementById('f_slot').value,
+    startTime: document.getElementById('f_start').value + ':00',
+    endTime: document.getElementById('f_end').value + ':00',
+    totalAmount: parseFloat(document.getElementById('f_amount').value) || 0,
+    status: document.getElementById('f_status').value,
+  };
+  try {
+    if (id) { await API.put('/api/bookings/' + id, body); toast('Booking updated', 'success'); }
+    else    { await API.post('/api/bookings', body); toast('Booking created', 'success'); }
+    closeModal('bookingModal');
+    reload();
+  } catch (err) { toast('Save failed: ' + err.message, 'error'); }
+}
+
+async function del(id) {
+  if (!confirm('Delete this booking?')) return;
+  try { await API.del('/api/bookings/' + id); toast('Booking deleted', 'success'); reload(); }
+  catch (e) { toast('Delete failed: ' + e.message, 'error'); }
+}
+
+(async () => { await loadIndices(); reload(); })();
+</script>
+</body>
+</html>

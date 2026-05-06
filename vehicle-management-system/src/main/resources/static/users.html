@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Users | Vehicle Management System</title>
+<link rel="stylesheet" href="/css/style.css" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="app-shell">
+
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">🚗</div>
+      <div class="brand-text">VMS<small>Vehicle Mgmt</small></div>
+    </div>
+    <nav class="nav">
+      <a href="/index.html"><span class="nav-icon">📊</span><span>Dashboard</span></a>
+      <a href="/profile.html" data-customer-only><span class="nav-icon">👤</span><span>My Profile</span></a>
+      <a href="/users.html" data-admin-only><span class="nav-icon">👥</span><span>Users</span></a>
+      <a href="/vehicles.html"><span class="nav-icon">🚙</span><span>Vehicles</span></a>
+      <a href="/slots.html"><span class="nav-icon">🅿️</span><span>Parking Slots</span></a>
+      <a href="/bookings.html"><span class="nav-icon">📅</span><span>Bookings</span></a>
+      <a href="/payments.html"><span class="nav-icon">💳</span><span>Payments</span></a>
+      <a href="/feedback.html"><span class="nav-icon">💬</span><span>Feedback</span></a>
+      <a href="/reports.html" data-admin-only><span class="nav-icon">📈</span><span>Reports & History</span></a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="page-header">
+      <div>
+        <div class="page-title">User Management</div>
+        <div class="page-subtitle">Create, search, update and remove system users</div>
+      </div>
+      <button class="btn btn-primary" onclick="openCreate()">➕ Add User</button>
+    </div>
+
+    <div class="toolbar">
+      <div class="search-box">
+        <input id="search" placeholder="Search by name, email, phone or role…" oninput="reload()">
+      </div>
+      <button class="btn btn-secondary" onclick="reload()">🔄 Refresh</button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Role</th>
+            <th>Created</th>
+            <th class="col-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<!-- Modal -->
+<div class="modal-backdrop" id="userModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Add User</div>
+      <button class="modal-close" onclick="closeModal('userModal')">×</button>
+    </div>
+    <form id="userForm" onsubmit="onSubmit(event)">
+      <input type="hidden" id="f_id" />
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Name *</label>
+          <input id="f_name" required />
+        </div>
+        <div class="form-group">
+          <label>Email *</label>
+          <input id="f_email" type="email" required />
+        </div>
+        <div class="form-group">
+          <label>Phone</label>
+          <input id="f_phone" />
+        </div>
+        <div class="form-group">
+          <label>Role</label>
+          <select id="f_role">
+            <option value="CUSTOMER">CUSTOMER</option>
+            <option value="ADMIN">ADMIN</option>
+          </select>
+        </div>
+        <div class="form-group" style="grid-column: span 2;">
+          <label>Address</label>
+          <input id="f_address" />
+        </div>
+        <div class="form-group" style="grid-column: span 2;">
+          <label>Password</label>
+          <input id="f_password" type="text" placeholder="Leave blank to keep existing" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('userModal')">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="/js/auth.js"></script>
+<script>requireAdmin(); renderTopbar('Users');</script>
+<script src="/js/api.js"></script>
+<script>
+async function reload() {
+  const q = document.getElementById('search').value.trim();
+  const url = q ? `/api/users?q=${encodeURIComponent(q)}` : '/api/users';
+  try {
+    const list = await API.get(url);
+    const tbody = document.getElementById('rows');
+    if (!list.length) {
+      tbody.innerHTML = `<tr><td colspan="6"><div class="empty"><div class="empty-icon">👥</div>No users found. Click "Add User" to create one.</div></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = list.map(u => `
+      <tr>
+        <td><strong>${escapeHtml(u.name)}</strong></td>
+        <td>${escapeHtml(u.email)}</td>
+        <td>${escapeHtml(u.phone || '-')}</td>
+        <td><span class="badge ${badgeFor(u.role)}">${escapeHtml(u.role || '-')}</span></td>
+        <td>${fmtDateTime(u.createdAt)}</td>
+        <td class="col-actions">
+          <button class="btn btn-sm btn-secondary" onclick='openEdit(${JSON.stringify(JSON.stringify(u))})'>✏️ Edit</button>
+          <button class="btn btn-sm btn-danger" onclick="delUser('${u.id}')">🗑️ Delete</button>
+        </td>
+      </tr>`).join('');
+  } catch (e) {
+    toast('Failed to load users: ' + e.message, 'error');
+  }
+}
+
+function openCreate() {
+  document.getElementById('modalTitle').textContent = 'Add User';
+  document.getElementById('userForm').reset();
+  document.getElementById('f_id').value = '';
+  openModal('userModal');
+}
+
+function openEdit(payloadStr) {
+  const u = JSON.parse(payloadStr);
+  document.getElementById('modalTitle').textContent = 'Edit User';
+  document.getElementById('f_id').value = u.id;
+  document.getElementById('f_name').value = u.name || '';
+  document.getElementById('f_email').value = u.email || '';
+  document.getElementById('f_phone').value = u.phone || '';
+  document.getElementById('f_address').value = u.address || '';
+  document.getElementById('f_role').value = u.role || 'CUSTOMER';
+  document.getElementById('f_password').value = u.password || '';
+  openModal('userModal');
+}
+
+async function onSubmit(e) {
+  e.preventDefault();
+  const id = document.getElementById('f_id').value;
+  const body = {
+    name: document.getElementById('f_name').value.trim(),
+    email: document.getElementById('f_email').value.trim(),
+    phone: document.getElementById('f_phone').value.trim(),
+    address: document.getElementById('f_address').value.trim(),
+    role: document.getElementById('f_role').value,
+    password: document.getElementById('f_password').value,
+  };
+  try {
+    if (id) {
+      await API.put('/api/users/' + id, body);
+      toast('User updated', 'success');
+    } else {
+      await API.post('/api/users', body);
+      toast('User created', 'success');
+    }
+    closeModal('userModal');
+    reload();
+  } catch (err) { toast('Save failed: ' + err.message, 'error'); }
+}
+
+async function delUser(id) {
+  if (!confirm('Delete this user?')) return;
+  try {
+    await API.del('/api/users/' + id);
+    toast('User deleted', 'success');
+    reload();
+  } catch (e) { toast('Delete failed: ' + e.message, 'error'); }
+}
+
+reload();
+</script>
+</body>
+</html>

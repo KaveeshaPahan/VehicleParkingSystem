@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>My Profile | Vehicle Management System</title>
+<link rel="stylesheet" href="/css/style.css" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">🚗</div>
+      <div class="brand-text">VMS<small>Vehicle Mgmt</small></div>
+    </div>
+    <nav class="nav">
+      <a href="/index.html"><span class="nav-icon">📊</span><span>Dashboard</span></a>
+      <a href="/profile.html"><span class="nav-icon">👤</span><span>My Profile</span></a>
+      <a href="/users.html" data-admin-only><span class="nav-icon">👥</span><span>Users</span></a>
+      <a href="/vehicles.html"><span class="nav-icon">🚙</span><span>Vehicles</span></a>
+      <a href="/slots.html"><span class="nav-icon">🅿️</span><span>Parking Slots</span></a>
+      <a href="/bookings.html"><span class="nav-icon">📅</span><span>Bookings</span></a>
+      <a href="/payments.html"><span class="nav-icon">💳</span><span>Payments</span></a>
+      <a href="/feedback.html"><span class="nav-icon">💬</span><span>Feedback</span></a>
+      <a href="/reports.html" data-admin-only><span class="nav-icon">📈</span><span>Reports & History</span></a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="page-header">
+      <div>
+        <div class="page-title">My Profile</div>
+        <div class="page-subtitle">View and update your account details</div>
+      </div>
+    </div>
+
+    <div class="card" style="max-width: 700px;">
+      <div class="card-title">Account Information</div>
+      <form id="profileForm" onsubmit="onSave(event)">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Full Name *</label>
+            <input id="f_name" required />
+          </div>
+          <div class="form-group">
+            <label>Email *</label>
+            <input id="f_email" type="email" required />
+          </div>
+          <div class="form-group">
+            <label>Phone</label>
+            <input id="f_phone" />
+          </div>
+          <div class="form-group">
+            <label>Role</label>
+            <input id="f_role" disabled />
+          </div>
+          <div class="form-group" style="grid-column: span 2;">
+            <label>Address</label>
+            <input id="f_address" />
+          </div>
+          <div class="form-group" style="grid-column: span 2;">
+            <label>Password (leave blank to keep current)</label>
+            <input id="f_password" type="password" placeholder="••••••••" />
+          </div>
+        </div>
+        <div style="display:flex; gap:10px; margin-top:16px;">
+          <button type="submit" class="btn btn-primary">💾 Save Changes</button>
+          <button type="button" class="btn btn-danger" onclick="onDelete()">🗑️ Delete My Account</button>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+
+<script src="/js/auth.js"></script>
+<script>requireAuth(); renderTopbar('My Profile');</script>
+<script src="/js/api.js"></script>
+<script>
+const me = getCurrentUser();
+
+async function load() {
+  try {
+    const u = await API.get('/api/users/' + me.id);
+    document.getElementById('f_name').value = u.name || '';
+    document.getElementById('f_email').value = u.email || '';
+    document.getElementById('f_phone').value = u.phone || '';
+    document.getElementById('f_address').value = u.address || '';
+    document.getElementById('f_role').value = u.role || '';
+  } catch (e) { toast('Failed to load profile: ' + e.message, 'error'); }
+}
+
+async function onSave(e) {
+  e.preventDefault();
+  const newPassword = document.getElementById('f_password').value;
+  const body = {
+    name: document.getElementById('f_name').value.trim(),
+    email: document.getElementById('f_email').value.trim(),
+    phone: document.getElementById('f_phone').value.trim(),
+    address: document.getElementById('f_address').value.trim(),
+    role: me.role,
+    password: newPassword ? newPassword : me.password || '',
+  };
+  try {
+    const updated = await API.put('/api/users/' + me.id, body);
+    // refresh local copy (without password)
+    const stored = { ...updated };
+    delete stored.password;
+    setCurrentUser(stored);
+    toast('Profile saved', 'success');
+    document.getElementById('f_password').value = '';
+  } catch (err) { toast('Save failed: ' + err.message, 'error'); }
+}
+
+async function onDelete() {
+  if (!confirm('This will permanently delete your account. Continue?')) return;
+  try {
+    await API.del('/api/users/' + me.id);
+    setCurrentUser(null);
+    location.href = '/landing.html';
+  } catch (err) { toast('Delete failed: ' + err.message, 'error'); }
+}
+
+load();
+</script>
+</body>
+</html>

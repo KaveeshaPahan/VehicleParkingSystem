@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Reports & History | Vehicle Management System</title>
+<link rel="stylesheet" href="/css/style.css" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">🚗</div>
+      <div class="brand-text">VMS<small>Vehicle Mgmt</small></div>
+    </div>
+    <nav class="nav">
+      <a href="/index.html"><span class="nav-icon">📊</span><span>Dashboard</span></a>
+      <a href="/profile.html" data-customer-only><span class="nav-icon">👤</span><span>My Profile</span></a>
+      <a href="/users.html" data-admin-only><span class="nav-icon">👥</span><span>Users</span></a>
+      <a href="/vehicles.html"><span class="nav-icon">🚙</span><span>Vehicles</span></a>
+      <a href="/slots.html"><span class="nav-icon">🅿️</span><span>Parking Slots</span></a>
+      <a href="/bookings.html"><span class="nav-icon">📅</span><span>Bookings</span></a>
+      <a href="/payments.html"><span class="nav-icon">💳</span><span>Payments</span></a>
+      <a href="/feedback.html"><span class="nav-icon">💬</span><span>Feedback</span></a>
+      <a href="/reports.html" data-admin-only><span class="nav-icon">📈</span><span>Reports & History</span></a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Reports & Booking History</div>
+        <div class="page-subtitle">Analytics, revenue and full booking history</div>
+      </div>
+      <div>
+        <button class="btn btn-secondary" onclick="loadAll()">🔄 Refresh</button>
+        <button class="btn btn-primary" onclick="exportHistory()">⬇️ Export CSV</button>
+      </div>
+    </div>
+
+    <div class="stats-grid" id="statsGrid"></div>
+
+    <div class="card">
+      <div class="card-title">📈 Revenue by Date</div>
+      <div id="revChart" class="bar-chart"><div class="empty">Loading...</div></div>
+    </div>
+
+    <div style="height:16px"></div>
+
+    <div class="card">
+      <div class="card-title">📋 Full Booking History (newest first)</div>
+      <div class="table-wrap" style="margin-top:12px">
+        <table>
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Vehicle</th>
+              <th>Slot</th>
+              <th>Start</th>
+              <th>End</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Created</th>
+            </tr>
+          </thead>
+          <tbody id="historyRows"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="/js/auth.js"></script>
+<script>requireAdmin(); renderTopbar('Reports & History');</script>
+<script src="/js/api.js"></script>
+<script>
+let usersIndex = {}, vehiclesIndex = {}, slotsIndex = {}, history = [];
+
+async function loadAll() {
+  try {
+    const [stats, hist, rev, users, vehicles, slots] = await Promise.all([
+      API.get('/api/reports/dashboard'),
+      API.get('/api/reports/history'),
+      API.get('/api/reports/revenue'),
+      API.get('/api/users'),
+      API.get('/api/vehicles'),
+      API.get('/api/slots'),
+    ]);
+    usersIndex = Object.fromEntries(users.map(u => [u.id, u]));
+    vehiclesIndex = Object.fromEntries(vehicles.map(v => [v.id, v]));
+    slotsIndex = Object.fromEntries(slots.map(s => [s.id, s]));
+    history = hist;
+
+    const cards = [
+      { label: 'Total Bookings',    value: stats.totalBookings,    icon: '📋', cls: '' },
+      { label: 'Active Bookings',   value: stats.activeBookings,   icon: '✅', cls: 'green' },
+      { label: 'Completed',         value: stats.completedBookings, icon: '🏁', cls: 'blue' },
+      { label: 'Cancelled',         value: stats.cancelledBookings, icon: '❌', cls: 'red' },
+      { label: 'Total Revenue',     value: fmtMoney(stats.totalRevenue), icon: '💰', cls: 'green' },
+      { label: 'Avg. Rating',       value: (stats.averageRating || 0).toFixed(1) + ' ⭐', icon: '⭐', cls: 'amber' },
+    ];
+    document.getElementById('statsGrid').innerHTML = cards.map(s => `
+      <div class="stat">
+        <div class="stat-icon ${s.cls}">${s.icon}</div>
+        <div>
+          <div class="stat-value">${escapeHtml(String(s.value))}</div>
+          <div class="stat-label">${s.label}</div>
+        </div>
+      </div>`).join('');
+
+    renderBars('revChart', rev, fmtMoney);
+    renderHistory();
+  } catch (e) { toast('Could not load reports: ' + e.message, 'error'); }
+}
+
+function renderBars(id, obj, formatter = (v) => v) {
+  const target = document.getElementById(id);
+  const entries = Object.entries(obj || {});
+  if (!entries.length) { target.innerHTML = '<div class="empty">No data yet</div>'; return; }
+  const max = Math.max(...entries.map(([, v]) => Number(v) || 0)) || 1;
+  target.innerHTML = entries.map(([k, v]) => `
+    <div class="bar-row">
+      <div class="bar-label">${escapeHtml(k)}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${(v/max)*100}%"></div></div>
+      <div class="bar-value">${formatter(v)}</div>
+    </div>`).join('');
+}
+
+function renderHistory() {
+  const tbody = document.getElementById('historyRows');
+  if (!history.length) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty"><div class="empty-icon">📋</div>No booking history yet.</div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = history.map(b => {
+    const u = usersIndex[b.userId], v = vehiclesIndex[b.vehicleId], s = slotsIndex[b.slotId];
+    return `<tr>
+      <td>${u ? escapeHtml(u.name) : '<em>?</em>'}</td>
+      <td>${v ? escapeHtml(v.plateNumber) : '<em>?</em>'}</td>
+      <td>${s ? escapeHtml(s.slotNumber) : '<em>?</em>'}</td>
+      <td>${fmtDateTime(b.startTime)}</td>
+      <td>${fmtDateTime(b.endTime)}</td>
+      <td>${fmtMoney(b.totalAmount)}</td>
+      <td><span class="badge ${badgeFor(b.status)}">${escapeHtml(b.status || '-')}</span></td>
+      <td>${fmtDateTime(b.createdAt)}</td>
+    </tr>`;
+  }).join('');
+}
+
+function exportHistory() {
+  if (!history.length) { toast('No data to export', 'info'); return; }
+  const headers = ['User','Vehicle','Slot','Start','End','Total','Status','Created'];
+  const rows = history.map(b => {
+    const u = usersIndex[b.userId], v = vehiclesIndex[b.vehicleId], s = slotsIndex[b.slotId];
+    return [
+      u ? u.name : '?',
+      v ? v.plateNumber : '?',
+      s ? s.slotNumber : '?',
+      b.startTime || '',
+      b.endTime || '',
+      b.totalAmount || 0,
+      b.status || '',
+      b.createdAt || '',
+    ].map(x => `"${String(x).replace(/"/g, '""')}"`).join(',');
+  });
+  const csv = headers.join(',') + '\n' + rows.join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `booking-history-${Date.now()}.csv`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast('CSV downloaded', 'success');
+}
+
+loadAll();
+</script>
+</body>
+</html>

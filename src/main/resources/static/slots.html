@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Parking Slots | Vehicle Management System</title>
+<link rel="stylesheet" href="/css/style.css" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">🚗</div>
+      <div class="brand-text">VMS<small>Vehicle Mgmt</small></div>
+    </div>
+    <nav class="nav">
+      <a href="/index.html"><span class="nav-icon">📊</span><span>Dashboard</span></a>
+      <a href="/profile.html" data-customer-only><span class="nav-icon">👤</span><span>My Profile</span></a>
+      <a href="/users.html" data-admin-only><span class="nav-icon">👥</span><span>Users</span></a>
+      <a href="/vehicles.html"><span class="nav-icon">🚙</span><span>Vehicles</span></a>
+      <a href="/slots.html"><span class="nav-icon">🅿️</span><span>Parking Slots</span></a>
+      <a href="/bookings.html"><span class="nav-icon">📅</span><span>Bookings</span></a>
+      <a href="/payments.html"><span class="nav-icon">💳</span><span>Payments</span></a>
+      <a href="/feedback.html"><span class="nav-icon">💬</span><span>Feedback</span></a>
+      <a href="/reports.html" data-admin-only><span class="nav-icon">📈</span><span>Reports & History</span></a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="page-header">
+      <div>
+        <div class="page-title" id="pageTitle">Parking Slot Management</div>
+        <div class="page-subtitle" id="pageSubtitle">Configure all parking bays</div>
+      </div>
+      <button class="btn btn-primary" onclick="openCreate()" data-admin-only>➕ Add Slot</button>
+    </div>
+
+    <div class="toolbar">
+      <div class="search-box">
+        <input id="search" placeholder="Search by slot number, location, type or status…" oninput="reload()">
+      </div>
+      <button class="btn btn-secondary" onclick="reload()">🔄 Refresh</button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Slot #</th>
+            <th>Location</th>
+            <th>Type</th>
+            <th>Hourly Rate</th>
+            <th>Status</th>
+            <th class="col-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<div class="modal-backdrop" id="slotModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Add Slot</div>
+      <button class="modal-close" onclick="closeModal('slotModal')">×</button>
+    </div>
+    <form id="slotForm" onsubmit="onSubmit(event)">
+      <input type="hidden" id="f_id" />
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Slot Number *</label>
+          <input id="f_slotNo" required />
+        </div>
+        <div class="form-group">
+          <label>Location</label>
+          <input id="f_location" placeholder="e.g. Floor 1 - North" />
+        </div>
+        <div class="form-group">
+          <label>Type</label>
+          <select id="f_type">
+            <option value="CAR">CAR</option>
+            <option value="BIKE">BIKE</option>
+            <option value="VAN">VAN</option>
+            <option value="TRUCK">TRUCK</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Hourly Rate (Rs)</label>
+          <input id="f_rate" type="number" min="0" step="0.5" value="100" />
+        </div>
+        <div class="form-group" style="grid-column: span 2;">
+          <label>Status</label>
+          <select id="f_status">
+            <option value="AVAILABLE">AVAILABLE</option>
+            <option value="OCCUPIED">OCCUPIED</option>
+            <option value="MAINTENANCE">MAINTENANCE</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('slotModal')">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="/js/auth.js"></script>
+<script>requireAuth(); renderTopbar('Parking Slots');</script>
+<script src="/js/api.js"></script>
+<script>
+const ADMIN = isAdmin();
+
+if (!ADMIN) {
+  document.getElementById('pageTitle').textContent = 'Available Parking Slots';
+  document.getElementById('pageSubtitle').textContent = 'Browse parking bays (read-only)';
+}
+
+async function reload() {
+  const q = document.getElementById('search').value.trim();
+  let url;
+  if (ADMIN) {
+    url = q ? `/api/slots?q=${encodeURIComponent(q)}` : '/api/slots';
+  } else {
+    // Customers see available slots only by default; ?q= still filters
+    url = q ? `/api/slots?q=${encodeURIComponent(q)}` : '/api/slots?available=true';
+  }
+  try {
+    const list = await API.get(url);
+    const tbody = document.getElementById('rows');
+    if (!list.length) {
+      const msg = ADMIN ? 'No parking slots. Click "Add Slot" to create one.' : 'No parking slots available right now.';
+      tbody.innerHTML = `<tr><td colspan="6"><div class="empty"><div class="empty-icon">🅿️</div>${msg}</div></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = list.map(s => `
+      <tr>
+        <td><strong>${escapeHtml(s.slotNumber)}</strong></td>
+        <td>${escapeHtml(s.location || '-')}</td>
+        <td><span class="badge badge-info">${escapeHtml(s.type || '-')}</span></td>
+        <td>${fmtMoney(s.hourlyRate)}</td>
+        <td><span class="badge ${badgeFor(s.status)}">${escapeHtml(s.status || '-')}</span></td>
+        <td class="col-actions">
+          ${ADMIN ? `<button class="btn btn-sm btn-secondary" onclick='openEdit(${JSON.stringify(JSON.stringify(s))})'>✏️ Edit</button>
+                    <button class="btn btn-sm btn-danger" onclick="del('${s.id}')">🗑️ Delete</button>`
+                  : `<span style="color:var(--text-muted);font-size:12px">read-only</span>`}
+        </td>
+      </tr>`).join('');
+  } catch (e) {
+    toast('Failed to load slots: ' + e.message, 'error');
+  }
+}
+
+function openCreate() {
+  document.getElementById('modalTitle').textContent = 'Add Slot';
+  document.getElementById('slotForm').reset();
+  document.getElementById('f_id').value = '';
+  document.getElementById('f_rate').value = 100;
+  openModal('slotModal');
+}
+
+function openEdit(str) {
+  const s = JSON.parse(str);
+  document.getElementById('modalTitle').textContent = 'Edit Slot';
+  document.getElementById('f_id').value = s.id;
+  document.getElementById('f_slotNo').value = s.slotNumber || '';
+  document.getElementById('f_location').value = s.location || '';
+  document.getElementById('f_type').value = s.type || 'CAR';
+  document.getElementById('f_rate').value = s.hourlyRate || 0;
+  document.getElementById('f_status').value = s.status || 'AVAILABLE';
+  openModal('slotModal');
+}
+
+async function onSubmit(e) {
+  e.preventDefault();
+  const id = document.getElementById('f_id').value;
+  const body = {
+    slotNumber: document.getElementById('f_slotNo').value.trim(),
+    location: document.getElementById('f_location').value.trim(),
+    type: document.getElementById('f_type').value,
+    hourlyRate: parseFloat(document.getElementById('f_rate').value) || 0,
+    status: document.getElementById('f_status').value,
+  };
+  try {
+    if (id) { await API.put('/api/slots/' + id, body); toast('Slot updated', 'success'); }
+    else    { await API.post('/api/slots', body); toast('Slot created', 'success'); }
+    closeModal('slotModal');
+    reload();
+  } catch (err) { toast('Save failed: ' + err.message, 'error'); }
+}
+
+async function del(id) {
+  if (!confirm('Delete this slot?')) return;
+  try { await API.del('/api/slots/' + id); toast('Slot deleted', 'success'); reload(); }
+  catch (e) { toast('Delete failed: ' + e.message, 'error'); }
+}
+
+reload();
+</script>
+</body>
+</html>

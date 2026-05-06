@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sign Up | Vehicle Management System</title>
+<link rel="stylesheet" href="/css/style.css" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body class="public-page">
+
+  <header class="public-header">
+    <a href="/landing.html" style="text-decoration:none">
+      <div class="brand">
+        <div class="brand-icon">🚗</div>
+        <div class="brand-text">VMS<small>Vehicle Mgmt</small></div>
+      </div>
+    </a>
+    <nav class="public-header-nav">
+      <a href="/landing.html">Home</a>
+      <a href="/login.html">Login</a>
+    </nav>
+  </header>
+
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-title">Create your account 🚀</div>
+      <div class="auth-subtitle">Free forever – takes less than a minute</div>
+
+      <div class="auth-error" id="authError"></div>
+      <div class="auth-success" id="authSuccess"></div>
+
+      <form class="auth-form" id="registerForm" onsubmit="onRegister(event)">
+        <div class="form-group">
+          <label>Full Name *</label>
+          <input id="name" required placeholder="Kasun Perera" />
+        </div>
+        <div class="form-group">
+          <label>Email *</label>
+          <input id="email" type="email" required autocomplete="email" placeholder="you@example.com" />
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Phone</label>
+            <input id="phone" placeholder="0771234567" />
+          </div>
+          <div class="form-group">
+            <label>Role</label>
+            <select id="role">
+              <option value="CUSTOMER">CUSTOMER</option>
+              <option value="ADMIN">ADMIN</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Address</label>
+          <input id="address" placeholder="Colombo, Sri Lanka" />
+        </div>
+        <div class="form-group">
+          <label>Password *</label>
+          <input id="password" type="password" required autocomplete="new-password" placeholder="At least 4 characters" minlength="4" />
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg" id="regBtn">🚀 Create Account</button>
+      </form>
+
+      <div class="auth-meta">
+        Already have an account? <a href="/login.html">Login</a>
+      </div>
+    </div>
+  </div>
+
+  <footer class="public-footer">
+    © 2026 Vehicle Management System – SE1020 Project
+  </footer>
+
+<script src="/js/api.js"></script>
+<script src="/js/auth.js"></script>
+<script>
+if (getCurrentUser()) location.href = '/dashboard';
+
+async function onRegister(e) {
+  e.preventDefault();
+  const err = document.getElementById('authError');
+  const ok = document.getElementById('authSuccess');
+  err.classList.remove('show');
+  ok.classList.remove('show');
+  const btn = document.getElementById('regBtn');
+  btn.disabled = true; btn.textContent = 'Creating…';
+
+  const body = {
+    name: document.getElementById('name').value.trim(),
+    email: document.getElementById('email').value.trim(),
+    phone: document.getElementById('phone').value.trim(),
+    address: document.getElementById('address').value.trim(),
+    role: document.getElementById('role').value,
+    password: document.getElementById('password').value,
+  };
+  try {
+    const res = await API.post('/api/auth/register', body);
+    setCurrentUser(res.user);
+    ok.textContent = 'Account created! Redirecting to dashboard…';
+    ok.classList.add('show');
+    setTimeout(() => { location.href = '/dashboard'; }, 700);
+  } catch (ex) {
+    let msg = 'Could not create account';
+    const m = (ex.message || '').match(/\{.*\}/);
+    if (m) { try { msg = JSON.parse(m[0]).error || msg; } catch (_) {} }
+    err.textContent = msg;
+    err.classList.add('show');
+    btn.disabled = false; btn.textContent = '🚀 Create Account';
+  }
+}
+</script>
+</body>
+</html>

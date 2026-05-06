@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Vehicle Management System – Smart Parking Made Simple</title>
+<link rel="stylesheet" href="/css/style.css" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body class="public-page">
+
+  <header class="public-header">
+    <div class="brand">
+      <div class="brand-icon">🚗</div>
+      <div class="brand-text">VMS<small>Vehicle Mgmt</small></div>
+    </div>
+    <nav class="public-header-nav" id="headerNav">
+      <a href="/landing.html">Home</a>
+      <a href="#features">Features</a>
+      <a href="/login.html">Login</a>
+      <a href="/register.html" class="btn btn-primary">Get Started</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div class="hero-inner">
+      <span class="hero-eyebrow">⚡ Built with Spring Boot + File Storage</span>
+      <h1 class="hero-title">Smart parking & vehicle management in one place.</h1>
+      <p class="hero-subtitle">
+        Manage users, register vehicles, control parking slots, handle bookings, track payments and
+        collect feedback — all from a single, beautiful dashboard. No SQL needed; everything is stored
+        in plain text files.
+      </p>
+      <div class="hero-cta">
+        <a href="/register.html" class="btn btn-primary btn-lg">🚀 Create Free Account</a>
+        <a href="/login.html" class="btn btn-secondary btn-lg">🔐 Login</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="features" class="features">
+    <div class="page-header" style="justify-content: center; text-align: center;">
+      <div>
+        <div class="page-title" style="font-size: 28px;">Everything you need to run a parking lot</div>
+        <div class="page-subtitle">Six full CRUD modules + a powerful reporting engine</div>
+      </div>
+    </div>
+    <div class="features-grid">
+      <div class="feature">
+        <div class="feature-icon">👥</div>
+        <div class="feature-title">User Management</div>
+        <div class="feature-desc">Register customers and admins. Edit, search and delete users.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🚙</div>
+        <div class="feature-title">Vehicle Registry</div>
+        <div class="feature-desc">Track every car, bike, van and truck with owner details.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🅿️</div>
+        <div class="feature-title">Parking Slots</div>
+        <div class="feature-desc">Configure bays per floor, set hourly rates, monitor availability.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">📅</div>
+        <div class="feature-title">Smart Bookings</div>
+        <div class="feature-desc">Auto-calculates total amount and frees the slot on cancel.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">💳</div>
+        <div class="feature-title">Payments</div>
+        <div class="feature-desc">Track CASH / CARD / ONLINE payments per booking with status.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">💬</div>
+        <div class="feature-title">Feedback</div>
+        <div class="feature-desc">Customers rate the service; you triage and resolve.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">📈</div>
+        <div class="feature-title">Reports & History</div>
+        <div class="feature-desc">Live dashboard, revenue chart and full booking history with CSV export.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">📝</div>
+        <div class="feature-title">File-based Storage</div>
+        <div class="feature-desc">Pure text files (one entity per line) — no database to install.</div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="public-footer">
+    © 2026 Vehicle Management System – SE1020 Project
+  </footer>
+
+<script src="/js/auth.js"></script>
+<script>
+// If already logged in, replace Login button with "Go to Dashboard"
+const u = getCurrentUser();
+if (u) {
+  document.getElementById('headerNav').innerHTML = `
+    <a href="/landing.html">Home</a>
+    <a href="#features">Features</a>
+    <span style="color:var(--text-muted);font-size:13px">Hi, <strong style="color:var(--text)">${u.name}</strong></span>
+    <a href="/dashboard" class="btn btn-primary">Open Dashboard</a>
+    <a href="javascript:logout()">Logout</a>`;
+}
+</script>
+</body>
+</html>
