@@ -2,6 +2,7 @@ package com.vehiclemanagement.vehicle_management_system.model;
 
 import java.time.LocalDateTime;
 
+//inheritance
 public class ParkingSlot extends BaseEntity {
 
     private String slotNumber;
