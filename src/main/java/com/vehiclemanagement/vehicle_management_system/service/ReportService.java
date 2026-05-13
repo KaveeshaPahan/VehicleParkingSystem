@@ -113,7 +113,7 @@ public class ReportService {
         return map;
     }
 
-    /** Vehicles count grouped by type. */
+    // Groups vehicle counts by their type, like Car or Bike.
     public Map<String, Long> vehiclesByType() {
         Map<String, Long> map = new HashMap<>();
         vehicleService.getAll().forEach(v ->
