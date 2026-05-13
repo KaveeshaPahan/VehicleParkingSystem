@@ -104,7 +104,7 @@ public class ReportService {
         return agg;
     }
 
-    /** Bookings count grouped by status. */
+    // Counts total bookings for each status (Confirmed, Pending, etc.).
     public Map<String, Long> bookingsByStatus() {
         Map<String, Long> map = new HashMap<>();
         for (Booking b : bookingService.getAll()) {
