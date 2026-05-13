@@ -78,7 +78,7 @@ public class ReportService {
         return map;
     }
 
-    /** Payments grouped by method (CASH/CARD/ONLINE). */
+    // Groups all payment counts by method used (Cash, Card, Online).
     public Map<String, Long> paymentsByMethod() {
         Map<String, Long> map = new HashMap<>();
         paymentService.getAll().forEach(p ->
