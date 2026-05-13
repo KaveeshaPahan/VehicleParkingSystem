@@ -24,6 +24,7 @@ public class ParkingSlot extends BaseEntity {
         this.status = status;
     }
 
+    //getters and setters
     public String getSlotNumber() { return slotNumber; }
     public void setSlotNumber(String slotNumber) { this.slotNumber = slotNumber; }
 
