@@ -28,7 +28,7 @@ public abstract class FileRepository<T extends BaseEntity> {
     private final Path filePath;
     private final Function<String, T> deserializer;
 
-    // Setup the folder path and the tool to read the data
+    // Set up the folder path and the tool to read the data
     protected FileRepository(String fileName, Function<String, T> deserializer) {
         this.filePath = Paths.get(DATA_DIR, fileName);
         this.deserializer = deserializer;
@@ -46,8 +46,7 @@ public abstract class FileRepository<T extends BaseEntity> {
         }
     }
 
-    /** Read all entities from the file. Bad lines are skipped (logged) so that a
-     *  manual edit / corrupted line does not crash the whole API. */
+    // Reads the file and turns every line back into an object.
     public synchronized List<T> findAll() {
         List<T> list = new ArrayList<>();
         try {
@@ -78,7 +77,7 @@ public abstract class FileRepository<T extends BaseEntity> {
         return findAll().stream().filter(e -> id.equals(e.getId())).findFirst();
     }
 
-    /** Create. Generates a UUID if id is missing. */
+    // Gives the item an ID and adds it to the file.
     public synchronized T save(T entity) {
         if (entity.getId() == null || entity.getId().isBlank()) {
             entity.setId(UUID.randomUUID().toString());
@@ -93,7 +92,7 @@ public abstract class FileRepository<T extends BaseEntity> {
         return entity;
     }
 
-    /** Update an existing entity by id. Rewrites the entire file. */
+    // Finds an existing item, changes it, and updates the file.
     public synchronized Optional<T> update(T entity) {
         if (entity.getId() == null) return Optional.empty();
         List<T> all = findAll();
