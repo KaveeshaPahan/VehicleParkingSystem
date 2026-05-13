@@ -13,6 +13,7 @@ public class ParkingSlot extends BaseEntity {
 
     public ParkingSlot() { super(); }
 
+    //Constructor
     public ParkingSlot(String slotNumber, String location, String type,
                        double hourlyRate, String status) {
         super();
