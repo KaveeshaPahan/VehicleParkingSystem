@@ -21,6 +21,7 @@ public class ReportService {
     private final FeedbackService feedbackService;
     private final PaymentService paymentService;
 
+    // Connects all necessary data sources to this report generator.
     public ReportService(UserService userService, VehicleService vehicleService,
                          ParkingSlotService slotService, BookingService bookingService,
                          FeedbackService feedbackService, PaymentService paymentService) {
