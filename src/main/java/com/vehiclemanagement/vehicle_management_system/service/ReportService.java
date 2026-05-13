@@ -93,7 +93,7 @@ public class ReportService {
                 .toList();
     }
 
-    /** Revenue grouped by date (yyyy-MM-dd). */
+    // Shows how much money was earned on each specific day.
     public Map<String, Double> revenueByDate() {
         Map<String, Double> agg = new LinkedHashMap<>();
         for (Booking b : bookingService.getAll()) {
