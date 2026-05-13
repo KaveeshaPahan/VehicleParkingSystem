@@ -86,7 +86,7 @@ public class ReportService {
         return map;
     }
 
-    /** History of all bookings sorted by created date (newest first). */
+    // Returns a list of all bookings starting with the newest first.
     public List<Booking> bookingHistory() {
         return bookingService.getAll().stream()
                 .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
