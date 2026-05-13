@@ -32,7 +32,7 @@ public class ReportService {
         this.paymentService = paymentService;
     }
 
-    /** High-level dashboard stats. */
+    // Creates a summary of totals like users, slots, and total money.
     public Map<String, Object> dashboard() {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("totalUsers", userService.getAll().size());
