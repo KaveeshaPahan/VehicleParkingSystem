@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 
 public class Vehicle extends BaseEntity {
 
-    private String ownerID;       // User id
+    private String ownerId;       // User id
     private String plateNumber;
     private String brand;
     private String model;
@@ -17,7 +17,7 @@ public class Vehicle extends BaseEntity {
     public Vehicle(String ownerId, String plateNumber, String brand, String model,
                    String type, String color, int year) {
         super();
-        this.ownerID = ownerId;
+        this.ownerId = ownerId;
         this.plateNumber = plateNumber;
         this.brand = brand;
         this.model = model;
@@ -26,8 +26,8 @@ public class Vehicle extends BaseEntity {
         this.year = year;
     }
 
-    public String getOwnerId() { return ownerID; }
-    public void setOwnerId(String ownerId) { this.ownerID = ownerId; }
+    public String getOwnerId() { return ownerId; }
+    public void setOwnerId(String ownerId) { this.ownerId = ownerId; }
 
     public String getPlateNumber() { return plateNumber; }
     public void setPlateNumber(String plateNumber) { this.plateNumber = plateNumber; }
@@ -51,7 +51,7 @@ public class Vehicle extends BaseEntity {
     public String toLine() {
         return String.join(SEP,
                 safe(getId()),
-                safe(ownerID),
+                safe(ownerId),
                 safe(plateNumber),
                 safe(brand),
                 safe(model),
