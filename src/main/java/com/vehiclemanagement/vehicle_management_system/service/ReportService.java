@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+// Collects data from different services to create overall system reports.
 @Service
 public class ReportService {
 
