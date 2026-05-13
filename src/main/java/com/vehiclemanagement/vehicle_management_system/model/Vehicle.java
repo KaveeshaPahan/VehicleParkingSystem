@@ -28,6 +28,7 @@ public class Vehicle extends BaseEntity {
         this.year = year;
     }
 
+    //create Getters and Setters
     public String getOwnerId() { return ownerId; }
     public void setOwnerId(String ownerId) { this.ownerId = ownerId; }
 
