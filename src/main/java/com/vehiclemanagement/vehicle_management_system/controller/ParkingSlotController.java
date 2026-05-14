@@ -33,6 +33,7 @@ public class ParkingSlotController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    //create vehicle slot
     @PostMapping
     public ResponseEntity<ParkingSlot> create(@RequestBody ParkingSlot slot) {
         if (slot.getSlotNumber() == null || slot.getSlotNumber().isBlank()) {
