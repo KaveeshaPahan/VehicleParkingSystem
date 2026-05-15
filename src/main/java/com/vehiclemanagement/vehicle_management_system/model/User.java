@@ -17,6 +17,7 @@ public class User extends BaseEntity {
 
     public User() { super(); }
 
+    // Full constructor to set up a booking with all details at once
     public User(String name, String email, String phone, String address, String role, String password) {
         super();
         this.name = name;
