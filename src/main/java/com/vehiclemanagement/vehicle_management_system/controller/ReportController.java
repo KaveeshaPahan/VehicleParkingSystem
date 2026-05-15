@@ -28,6 +28,7 @@ public class ReportController {
         return reportService.bookingHistory();
     }
 
+    // Shows how much money was earned, grouped by dates
     @GetMapping("/revenue")
     public Map<String, Double> revenue() {
         return reportService.revenueByDate();
