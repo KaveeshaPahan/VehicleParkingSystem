@@ -13,9 +13,10 @@ public class User extends BaseEntity {
     private String email;
     private String phone;
     private String address;
-    private String role;      // ADMIN or CUSTOMER
+    private String role; // ADMIN or CUSTOMER
     private String password;
 
+    // Empty constructor for general use
     public User() { super(); }
 
     // Full constructor to set up a booking with all details at once
