@@ -33,6 +33,7 @@ public class ParkingSlotController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    //create vehicle slot
     @PostMapping
     public ResponseEntity<ParkingSlot> create(@RequestBody ParkingSlot slot) {
         if (slot.getSlotNumber() == null || slot.getSlotNumber().isBlank()) {
@@ -40,14 +41,14 @@ public class ParkingSlotController {
         }
         return ResponseEntity.ok(slotService.create(slot));
     }
-
+    //update vehicle slot
     @PutMapping("/{id}")
     public ResponseEntity<ParkingSlot> update(@PathVariable String id, @RequestBody ParkingSlot slot) {
         return slotService.update(id, slot)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-    //delete vehical slot
+    //delete vehicle slot
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, Object>> delete(@PathVariable String id) {
         if (!slotService.delete(id)) return ResponseEntity.notFound().build();

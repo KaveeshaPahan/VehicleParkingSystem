@@ -2,6 +2,7 @@ package com.vehiclemanagement.vehicle_management_system.model;
 
 import java.time.LocalDateTime;
 
+//inheritance
 public class ParkingSlot extends BaseEntity {
 
     private String slotNumber;
@@ -12,6 +13,7 @@ public class ParkingSlot extends BaseEntity {
 
     public ParkingSlot() { super(); }
 
+    //Constructor
     public ParkingSlot(String slotNumber, String location, String type,
                        double hourlyRate, String status) {
         super();
@@ -22,6 +24,7 @@ public class ParkingSlot extends BaseEntity {
         this.status = status;
     }
 
+    //getters and setters
     public String getSlotNumber() { return slotNumber; }
     public void setSlotNumber(String slotNumber) { this.slotNumber = slotNumber; }
 
@@ -37,6 +40,7 @@ public class ParkingSlot extends BaseEntity {
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
 
+    //toLine method
     @Override
     public String toLine() {
         return String.join(SEP,
@@ -50,6 +54,7 @@ public class ParkingSlot extends BaseEntity {
                 getUpdatedAt().format(DATE_FORMAT));
     }
 
+    //fromLine method
     public static ParkingSlot fromLine(String line) {
         String[] p = line.split(DELIM, -1);
         if (p.length < 8) return null;
