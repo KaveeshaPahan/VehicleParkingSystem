@@ -23,6 +23,7 @@ public class ReportController {
         return reportService.dashboard();
     }
 
+    // Returns a list of every booking ever made (the audit trail)
     @GetMapping("/history")
     public List<Booking> history() {
         return reportService.bookingHistory();
