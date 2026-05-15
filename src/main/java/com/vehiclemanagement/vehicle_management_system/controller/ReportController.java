@@ -38,6 +38,7 @@ public class ReportController {
         return reportService.bookingsByStatus();
     }
 
+    // Shows the count of vehicles based on their category (e.g., Sedan, SUV, Truck)
     @GetMapping("/vehicles-by-type")
     public Map<String, Long> vehiclesByType() {
         return reportService.vehiclesByType();
