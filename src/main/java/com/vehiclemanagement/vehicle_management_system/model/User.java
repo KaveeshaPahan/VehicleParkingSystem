@@ -61,6 +61,7 @@ public class User extends BaseEntity {
 
     public static User fromLine(String line) {
         String[] p = line.split(DELIM, -1);
+        // Ensure there are at least 9 pieces of data in the line
         if (p.length < 9) return null;
         User u = new User();
         u.setId(p[0]);
