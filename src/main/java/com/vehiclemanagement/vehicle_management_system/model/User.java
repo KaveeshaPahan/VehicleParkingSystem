@@ -59,6 +59,7 @@ public class User extends BaseEntity {
                 getUpdatedAt().format(DATE_FORMAT));
     }
 
+    //Reads a line of text and rebuilds the Booking object.
     public static User fromLine(String line) {
         String[] p = line.split(DELIM, -1);
         // Ensure there are at least 9 pieces of data in the line
