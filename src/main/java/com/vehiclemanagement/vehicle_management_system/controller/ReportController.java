@@ -14,6 +14,7 @@ public class ReportController {
 
     private final ReportService reportService;
 
+    // Connects the Service layer to this Controller (Dependency Injection)
     public ReportController(ReportService reportService) {
         this.reportService = reportService;
     }
