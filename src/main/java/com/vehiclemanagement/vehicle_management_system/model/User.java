@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
  */
 public class User extends BaseEntity {
 
+    //Private Variables (Booking details)
     private String name;
     private String email;
     private String phone;
