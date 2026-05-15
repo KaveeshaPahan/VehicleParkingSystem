@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+// Collects data from different services to create overall system reports.
 @Service
 public class ReportService {
 
@@ -21,6 +22,7 @@ public class ReportService {
     private final FeedbackService feedbackService;
     private final PaymentService paymentService;
 
+    // Connects all necessary data sources to this report generator.
     public ReportService(UserService userService, VehicleService vehicleService,
                          ParkingSlotService slotService, BookingService bookingService,
                          FeedbackService feedbackService, PaymentService paymentService) {
@@ -32,7 +34,7 @@ public class ReportService {
         this.paymentService = paymentService;
     }
 
-    /** High-level dashboard stats. */
+    // Creates a summary of totals like users, slots, and total money.
     public Map<String, Object> dashboard() {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("totalUsers", userService.getAll().size());
@@ -78,7 +80,7 @@ public class ReportService {
         return map;
     }
 
-    /** Payments grouped by method (CASH/CARD/ONLINE). */
+    // Groups all payment counts by method used (Cash, Card, Online).
     public Map<String, Long> paymentsByMethod() {
         Map<String, Long> map = new HashMap<>();
         paymentService.getAll().forEach(p ->
@@ -86,14 +88,14 @@ public class ReportService {
         return map;
     }
 
-    /** History of all bookings sorted by created date (newest first). */
+    // Returns a list of all bookings starting with the newest first.
     public List<Booking> bookingHistory() {
         return bookingService.getAll().stream()
                 .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
                 .toList();
     }
 
-    /** Revenue grouped by date (yyyy-MM-dd). */
+    // Shows how much money was earned on each specific day.
     public Map<String, Double> revenueByDate() {
         Map<String, Double> agg = new LinkedHashMap<>();
         for (Booking b : bookingService.getAll()) {
@@ -104,7 +106,7 @@ public class ReportService {
         return agg;
     }
 
-    /** Bookings count grouped by status. */
+    // Counts total bookings for each status (Confirmed, Pending, etc.).
     public Map<String, Long> bookingsByStatus() {
         Map<String, Long> map = new HashMap<>();
         for (Booking b : bookingService.getAll()) {
@@ -113,7 +115,7 @@ public class ReportService {
         return map;
     }
 
-    /** Vehicles count grouped by type. */
+    // Groups vehicle counts by their type, like Car or Bike.
     public Map<String, Long> vehiclesByType() {
         Map<String, Long> map = new HashMap<>();
         vehicleService.getAll().forEach(v ->
