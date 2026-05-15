@@ -18,6 +18,7 @@ public class ReportController {
         this.reportService = reportService;
     }
 
+    // Gets a general overview of the system for the main dashboard
     @GetMapping("/dashboard")
     public Map<String, Object> dashboard() {
         return reportService.dashboard();
