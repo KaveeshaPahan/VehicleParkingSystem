@@ -43,6 +43,7 @@ public class ReportController {
         return reportService.vehiclesByType();
     }
 
+    // Shows which payment methods are used most (e.g., Cash, Card)
     @GetMapping("/payments-by-method")
     public Map<String, Long> paymentsByMethod() {
         return reportService.paymentsByMethod();
