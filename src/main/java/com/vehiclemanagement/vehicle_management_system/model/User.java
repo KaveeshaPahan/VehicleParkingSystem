@@ -70,6 +70,8 @@ public class User extends BaseEntity {
         u.setAddress(p[4]);
         u.setRole(p[5]);
         u.setPassword(p[6]);
+
+        // Converts text dates back into actual Java LocalDateTime objects
         u.setCreatedAt(LocalDateTime.parse(p[7], DATE_FORMAT));
         u.setUpdatedAt(LocalDateTime.parse(p[8], DATE_FORMAT));
         return u;
