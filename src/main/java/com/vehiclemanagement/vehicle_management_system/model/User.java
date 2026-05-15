@@ -45,6 +45,8 @@ public class User extends BaseEntity {
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
 
+    //Converts this Booking into a single string for storage.
+    //Uses separators to keep the data organized in a text file.
     @Override
     public String toLine() {
         return String.join(SEP,
