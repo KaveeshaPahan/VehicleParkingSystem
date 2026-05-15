@@ -27,6 +27,7 @@ public class User extends BaseEntity {
         this.password = password;
     }
 
+    //Getters and Setters (Standard methods to get/set data)
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
 
