@@ -33,6 +33,7 @@ public class ReportController {
         return reportService.revenueByDate();
     }
 
+    // Counts how many bookings are 'Pending', 'Confirmed', or 'Cancelled'
     @GetMapping("/bookings-by-status")
     public Map<String, Long> bookingsByStatus() {
         return reportService.bookingsByStatus();
