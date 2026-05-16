@@ -49,7 +49,7 @@ public class BookingController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-
+//delete Booking 
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, Object>> delete(@PathVariable String id) {
         if (!bookingService.delete(id)) return ResponseEntity.notFound().build();
