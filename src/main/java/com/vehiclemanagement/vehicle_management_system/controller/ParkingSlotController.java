@@ -30,6 +30,7 @@ public class ParkingSlotController {
         return q == null ? slotService.getAll() : slotService.search(q);
     }
 
+    //get a slot by id
     @GetMapping("/{id}")
     public ResponseEntity<ParkingSlot> byId(@PathVariable String id) {
         return slotService.getById(id)
