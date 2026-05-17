@@ -20,6 +20,7 @@ public class UserService {
         return userRepository.findAll();
     }
 
+    // Finds and returns a specific user wrapped in an Optional by their unique ID
     public Optional<User> getById(String id) {
         return userRepository.findById(id);
     }
