@@ -13,6 +13,8 @@ import java.util.Map;
 @CrossOrigin(origins = "*")
 public class ParkingSlotController {
 
+    //Dependency Injection
+    
     private final ParkingSlotService slotService;
 
     public ParkingSlotController(ParkingSlotService slotService) {
