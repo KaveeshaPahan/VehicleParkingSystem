@@ -22,6 +22,7 @@ public class ParkingSlotController {
         this.slotService = slotService;
     }
 
+    //get all
     @GetMapping
     public List<ParkingSlot> all(@RequestParam(value = "q", required = false) String q,
                                  @RequestParam(value = "available", required = false) Boolean available) {
