@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
-@Service
+@Service // Marks this class as a Spring Service component containing core business logic
 public class UserService {
 
     private final UserRepository userRepository;
