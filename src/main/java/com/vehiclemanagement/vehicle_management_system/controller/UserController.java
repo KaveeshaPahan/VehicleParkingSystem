@@ -40,6 +40,7 @@ public class UserController {
         return ResponseEntity.ok(userService.create(user));
     }
 
+    // PUT: Update details of an existing user by their ID
     @PutMapping("/{id}")
     public ResponseEntity<User> update(@PathVariable String id, @RequestBody User user) {
         return userService.update(id, user)
