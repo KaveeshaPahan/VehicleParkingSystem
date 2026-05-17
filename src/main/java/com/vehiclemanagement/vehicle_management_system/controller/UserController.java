@@ -47,6 +47,7 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    // DELETE: Remove a user from the system by their ID
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, Object>> delete(@PathVariable String id) {
         boolean ok = userService.delete(id);
