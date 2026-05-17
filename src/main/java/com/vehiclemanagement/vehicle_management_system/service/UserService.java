@@ -27,6 +27,8 @@ public class UserService {
     public List<User> search(String query) {
         if (query == null || query.isBlank()) return getAll();
         String q = query.toLowerCase();
+
+        // Filter users based on whether any field contains the search text
         return userRepository.findAll().stream().filter(u ->
                 (u.getName() != null && u.getName().toLowerCase().contains(q)) ||
                 (u.getEmail() != null && u.getEmail().toLowerCase().contains(q)) ||
