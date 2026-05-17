@@ -10,7 +10,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*") // Allows external frontend applications to access this API
 public class UserController {
 
     private final UserService userService;
