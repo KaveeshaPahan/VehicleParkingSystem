@@ -14,10 +14,11 @@ import java.util.Map;
 public class ParkingSlotController {
 
     //Dependency Injection
-    
+
     private final ParkingSlotService slotService;
 
     public ParkingSlotController(ParkingSlotService slotService) {
+
         this.slotService = slotService;
     }
 
