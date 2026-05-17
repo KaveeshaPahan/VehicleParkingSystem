@@ -24,6 +24,7 @@ public class UserController {
         return q == null ? userService.getAll() : userService.search(q);
     }
 
+    // GET: Find a single user by their unique ID
     @GetMapping("/{id}")
     public ResponseEntity<User> byId(@PathVariable String id) {
         return userService.getById(id)
