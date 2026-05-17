@@ -15,6 +15,7 @@ public class UserController {
 
     private final UserService userService;
 
+    // Constructor injection: links the controller to the service layer
     public UserController(UserService userService) {
         this.userService = userService;
     }
