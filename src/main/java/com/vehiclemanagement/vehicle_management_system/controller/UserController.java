@@ -19,6 +19,7 @@ public class UserController {
         this.userService = userService;
     }
 
+    // GET: Fetch all users, or search users if a keyword 'q' is provided
     @GetMapping
     public List<User> all(@RequestParam(value = "q", required = false) String q) {
         return q == null ? userService.getAll() : userService.search(q);
