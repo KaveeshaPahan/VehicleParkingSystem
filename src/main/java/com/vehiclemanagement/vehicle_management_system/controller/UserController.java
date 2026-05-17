@@ -31,6 +31,7 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    // POST: Create a new user after checking for valid data
     @PostMapping
     public ResponseEntity<User> create(@RequestBody User user) {
         if (user.getName() == null || user.getName().isBlank()
