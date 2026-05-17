@@ -45,6 +45,7 @@ public class UserService {
         return userRepository.update(user);
     }
 
+    // Deletes a user by their ID and returns true if successful, false otherwise
     public boolean delete(String id) {
         return userRepository.deleteById(id);
     }
