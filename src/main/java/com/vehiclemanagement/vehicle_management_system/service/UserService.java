@@ -35,6 +35,7 @@ public class UserService {
         ).toList();
     }
 
+    // Saves a new user and sets their default role to "CUSTOMER" if none is provided
     public User create(User user) {
         if (user.getRole() == null || user.getRole().isBlank()) user.setRole("CUSTOMER");
         return userRepository.save(user);
