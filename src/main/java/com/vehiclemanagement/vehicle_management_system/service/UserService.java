@@ -40,6 +40,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    // Assigns the target ID to the user object and updates their details in the data storage
     public Optional<User> update(String id, User user) {
         user.setId(id);
         return userRepository.update(user);
