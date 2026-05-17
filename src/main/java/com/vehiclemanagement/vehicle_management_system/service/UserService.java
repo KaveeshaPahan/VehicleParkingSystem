@@ -12,6 +12,7 @@ public class UserService {
 
     private final UserRepository userRepository;
 
+    // Constructor injection to connect the database repository to this service
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
