@@ -24,6 +24,7 @@ public class UserService {
         return userRepository.findById(id);
     }
 
+    // Searches through all users for a keyword matching their name, email, phone, or role
     public List<User> search(String query) {
         if (query == null || query.isBlank()) return getAll();
         String q = query.toLowerCase();
