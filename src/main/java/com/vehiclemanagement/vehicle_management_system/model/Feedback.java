@@ -29,7 +29,7 @@ public class Feedback extends BaseEntity {
     }
 
     public String getUserId() { return userId; }  // Returns user ID
-    public void setUserId(String userId) { this.userId = userId; }
+    public void setUserId(String userId) { this.userId = userId; } // Sets user ID
 
     public String getSubject() { return subject; }
     public void setSubject(String subject) { this.subject = subject; }
