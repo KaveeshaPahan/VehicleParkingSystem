@@ -13,7 +13,9 @@ public class ParkingSlotService {
     private final ParkingSlotRepository repo;       // Data access layer for ParkingSlot entities.
                                                     // Marked 'final' to ensure immutability and thread safety after dependency injection.
 
+    // Constructor injection: Spring automatically provides the repository instance here
     public ParkingSlotService(ParkingSlotRepository repo) {
+
         this.repo = repo;
     }
 
