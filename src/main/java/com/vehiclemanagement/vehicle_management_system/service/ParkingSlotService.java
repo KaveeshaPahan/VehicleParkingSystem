@@ -23,7 +23,9 @@ public class ParkingSlotService {
     public List<ParkingSlot> getAll() {
         return repo.findAll(); }
 
-    public Optional<ParkingSlot> getById(String id) { return repo.findById(id); }
+    //Finds a specific parking slot by its ID, wrapped in an Optional to handle missing data safely
+    public Optional<ParkingSlot> getById(String id) {
+        return repo.findById(id); }
 
     public List<ParkingSlot> getAvailable() {
         return repo.findAll().stream()
