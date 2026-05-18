@@ -2,6 +2,7 @@ package com.vehiclemanagement.vehicle_management_system.model;
 
 import java.time.LocalDateTime;
 
+// Model class representing feedback information in the system
 public class Feedback extends BaseEntity {
 
     private String userId;
