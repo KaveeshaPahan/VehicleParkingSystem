@@ -25,11 +25,12 @@ public class FeedbackService {
     // Returns a feedback record using its ID
     public Optional<Feedback> getById(String id) { return repo.findById(id); }
 
+
     public List<Feedback> getByUser(String userId) {
         return repo.findAll().stream()
                 .filter(f -> userId.equals(f.getUserId())).toList();
     }
-
+    // Returns feedback records belonging to a specific user
     public List<Feedback> search(String query) {
         if (query == null || query.isBlank()) return getAll();
         String q = query.toLowerCase();
