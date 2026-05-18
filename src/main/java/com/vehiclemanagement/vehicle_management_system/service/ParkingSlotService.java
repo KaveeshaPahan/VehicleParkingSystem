@@ -18,7 +18,7 @@ public class ParkingSlotService {
 
         this.repo = repo;
     }
-    
+
     //Retrieves a list of all parking slots from the database
     public List<ParkingSlot> getAll() {
         return repo.findAll(); }
