@@ -48,6 +48,7 @@ public class FeedbackService {
     }
     // Updates an existing feedback record
     public Optional<Feedback> update(String id, Feedback feedback) {
+        // Set feedback ID before updating
         feedback.setId(id);
         return repo.update(feedback);
     }
