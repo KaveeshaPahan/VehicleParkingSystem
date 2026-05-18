@@ -42,6 +42,7 @@ public class FeedbackService {
     }
     // Creates and saves a new feedback record
     public Feedback create(Feedback feedback) {
+        // Set default status if no status is provided
         if (feedback.getStatus() == null || feedback.getStatus().isBlank()) feedback.setStatus("OPEN");
         return repo.save(feedback);
     }
