@@ -25,6 +25,7 @@ public class FeedbackController {
                               @RequestParam(value = "userId", required = false) String userId) {
         // Return feedback belonging to a specific user
         if (userId != null && !userId.isBlank()) return feedbackService.getByUser(userId);
+        // Return all feedback or filtered search results
         return q == null ? feedbackService.getAll() : feedbackService.search(q);
     }
 
