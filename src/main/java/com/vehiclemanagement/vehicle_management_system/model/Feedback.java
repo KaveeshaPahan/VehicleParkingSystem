@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 // Model class representing feedback information in the system
 public class Feedback extends BaseEntity {
 
+    // Stores the ID of the user who submitted feedback
     private String userId;
     private String subject;
     private String message;
