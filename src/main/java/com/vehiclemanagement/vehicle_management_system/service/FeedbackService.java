@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+// Service class responsible for handling feedback business logic
 @Service
 public class FeedbackService {
 
@@ -15,6 +16,7 @@ public class FeedbackService {
     public FeedbackService(FeedbackRepository repo) {
         this.repo = repo;
     }
+
 
     public List<Feedback> getAll() { return repo.findAll(); }
 
