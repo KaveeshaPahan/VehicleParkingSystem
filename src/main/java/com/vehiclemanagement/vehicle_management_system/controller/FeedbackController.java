@@ -10,7 +10,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/feedback")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*") // Allows frontend applications from any origin to access APIs
 public class FeedbackController {
 
     private final FeedbackService feedbackService;
