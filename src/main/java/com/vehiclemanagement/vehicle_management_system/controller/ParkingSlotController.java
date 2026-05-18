@@ -13,12 +13,16 @@ import java.util.Map;
 @CrossOrigin(origins = "*")
 public class ParkingSlotController {
 
+    //Dependency Injection
+
     private final ParkingSlotService slotService;
 
     public ParkingSlotController(ParkingSlotService slotService) {
+
         this.slotService = slotService;
     }
 
+    //get all or search
     @GetMapping
     public List<ParkingSlot> all(@RequestParam(value = "q", required = false) String q,
                                  @RequestParam(value = "available", required = false) Boolean available) {
@@ -26,6 +30,7 @@ public class ParkingSlotController {
         return q == null ? slotService.getAll() : slotService.search(q);
     }
 
+    //get a slot by id
     @GetMapping("/{id}")
     public ResponseEntity<ParkingSlot> byId(@PathVariable String id) {
         return slotService.getById(id)

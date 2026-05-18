@@ -10,16 +10,24 @@ import java.util.Optional;
 @Service
 public class ParkingSlotService {
 
-    private final ParkingSlotRepository repo;
+    private final ParkingSlotRepository repo;       // Data access layer for ParkingSlot entities.
+                                                    // Marked 'final' to ensure immutability and thread safety after dependency injection.
 
+    // Constructor injection
     public ParkingSlotService(ParkingSlotRepository repo) {
+
         this.repo = repo;
     }
 
-    public List<ParkingSlot> getAll() { return repo.findAll(); }
+    //Retrieves a list of all parking slots from the database
+    public List<ParkingSlot> getAll() {
+        return repo.findAll(); }
 
-    public Optional<ParkingSlot> getById(String id) { return repo.findById(id); }
+    //Finds a specific parking slot by its ID, wrapped in an Optional to handle missing data safely
+    public Optional<ParkingSlot> getById(String id) {
+        return repo.findById(id); }
 
+    //Fetches all slots from the database and filters for those with an "AVAILABLE" status
     public List<ParkingSlot> getAvailable() {
         return repo.findAll().stream()
                 .filter(s -> "AVAILABLE".equalsIgnoreCase(s.getStatus())).toList();
