@@ -37,7 +37,7 @@ public class Feedback extends BaseEntity {
     public String getMessage() { return message; }  // Returns feedback message
     public void setMessage(String message) { this.message = message; }  // Sets feedback message
 
-    public int getRating() { return rating; }
+    public int getRating() { return rating; } // Returns feedback rating
     public void setRating(int rating) { this.rating = rating; }
 
     public String getStatus() { return status; }
