@@ -8,15 +8,18 @@ import java.time.LocalDateTime;
  */
 public class User extends BaseEntity {
 
+    //Private Variables (Booking details)
     private String name;
     private String email;
     private String phone;
     private String address;
-    private String role;      // ADMIN or CUSTOMER
+    private String role; // ADMIN or CUSTOMER
     private String password;
 
+    // Empty constructor for general use
     public User() { super(); }
 
+    // Full constructor to set up a booking with all details at once
     public User(String name, String email, String phone, String address, String role, String password) {
         super();
         this.name = name;
@@ -27,6 +30,7 @@ public class User extends BaseEntity {
         this.password = password;
     }
 
+    //Getters and Setters (Standard methods to get/set data)
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
 
@@ -45,6 +49,8 @@ public class User extends BaseEntity {
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
 
+    //Converts this Booking into a single string for storage.
+    //Uses separators to keep the data organized in a text file.
     @Override
     public String toLine() {
         return String.join(SEP,
@@ -59,8 +65,10 @@ public class User extends BaseEntity {
                 getUpdatedAt().format(DATE_FORMAT));
     }
 
+    //Reads a line of text and rebuilds the Booking object.
     public static User fromLine(String line) {
         String[] p = line.split(DELIM, -1);
+        // Ensure there are at least 9 pieces of data in the line
         if (p.length < 9) return null;
         User u = new User();
         u.setId(p[0]);
@@ -70,6 +78,8 @@ public class User extends BaseEntity {
         u.setAddress(p[4]);
         u.setRole(p[5]);
         u.setPassword(p[6]);
+
+        // Converts text dates back into actual Java LocalDateTime objects
         u.setCreatedAt(LocalDateTime.parse(p[7], DATE_FORMAT));
         u.setUpdatedAt(LocalDateTime.parse(p[8], DATE_FORMAT));
         return u;

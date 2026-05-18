@@ -10,20 +10,23 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*") // Allows external frontend applications to access this API
 public class UserController {
 
     private final UserService userService;
 
+    // Constructor injection: links the controller to the service layer
     public UserController(UserService userService) {
         this.userService = userService;
     }
 
+    // GET: Fetch all users, or search users if a keyword 'q' is provided
     @GetMapping
     public List<User> all(@RequestParam(value = "q", required = false) String q) {
         return q == null ? userService.getAll() : userService.search(q);
     }
 
+    // GET: Find a single user by their unique ID
     @GetMapping("/{id}")
     public ResponseEntity<User> byId(@PathVariable String id) {
         return userService.getById(id)
@@ -31,6 +34,7 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    // POST: Create a new user after checking for valid data
     @PostMapping
     public ResponseEntity<User> create(@RequestBody User user) {
         if (user.getName() == null || user.getName().isBlank()
@@ -40,6 +44,7 @@ public class UserController {
         return ResponseEntity.ok(userService.create(user));
     }
 
+    // PUT: Update details of an existing user by their ID
     @PutMapping("/{id}")
     public ResponseEntity<User> update(@PathVariable String id, @RequestBody User user) {
         return userService.update(id, user)
@@ -47,6 +52,7 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    // DELETE: Remove a user from the system by their ID
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, Object>> delete(@PathVariable String id) {
         boolean ok = userService.delete(id);
