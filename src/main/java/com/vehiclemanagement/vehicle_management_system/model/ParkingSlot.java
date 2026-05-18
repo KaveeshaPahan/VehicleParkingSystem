@@ -14,7 +14,7 @@ public class ParkingSlot extends BaseEntity {
     //Default Constructor
     public ParkingSlot() { super(); }
 
-    //Constructor
+    //Parameterized Constructor
     public ParkingSlot(String slotNumber, String location, String type,
                        double hourlyRate, String status) {
         super();
