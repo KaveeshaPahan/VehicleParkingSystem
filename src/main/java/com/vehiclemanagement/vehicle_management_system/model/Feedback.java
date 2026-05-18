@@ -56,7 +56,7 @@ public class Feedback extends BaseEntity {
                 getCreatedAt().format(DATE_FORMAT),
                 getUpdatedAt().format(DATE_FORMAT));
     }
-
+    // Creates a Feedback object from a stored text line
     public static Feedback fromLine(String line) {
         String[] p = line.split(DELIM, -1);
         if (p.length < 8) return null;
