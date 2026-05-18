@@ -19,7 +19,7 @@ public class FeedbackService {
         this.repo = repo;
     }
 
-
+    // Returns all feedback records
     public List<Feedback> getAll() { return repo.findAll(); }
 
     public Optional<Feedback> getById(String id) { return repo.findById(id); }
