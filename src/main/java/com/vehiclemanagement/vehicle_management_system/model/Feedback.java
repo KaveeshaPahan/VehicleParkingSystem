@@ -7,6 +7,7 @@ public class Feedback extends BaseEntity {
 
     // Stores the ID of the user who submitted feedback
     private String userId;
+    // Stores the subject/title of the feedback
     private String subject;
     private String message;
     private int rating;        // 1 to 5
