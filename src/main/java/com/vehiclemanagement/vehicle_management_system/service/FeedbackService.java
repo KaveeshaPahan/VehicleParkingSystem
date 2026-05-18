@@ -14,6 +14,7 @@ public class FeedbackService {
     // Repository object used for feedback data operations
     private final FeedbackRepository repo;
 
+    // Constructor injection for FeedbackRepository
     public FeedbackService(FeedbackRepository repo) {
         this.repo = repo;
     }
