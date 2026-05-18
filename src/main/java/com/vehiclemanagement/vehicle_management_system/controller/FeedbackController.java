@@ -38,6 +38,8 @@ public class FeedbackController {
 
     @PostMapping
     public ResponseEntity<Feedback> create(@RequestBody Feedback f) {
+
+        // Validation check for empty subject or message
         if (f.getSubject() == null || f.getSubject().isBlank()
                 || f.getMessage() == null || f.getMessage().isBlank()) {
             return ResponseEntity.badRequest().build();
