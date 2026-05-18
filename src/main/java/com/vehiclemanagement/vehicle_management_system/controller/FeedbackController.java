@@ -59,6 +59,7 @@ public class FeedbackController {
     public ResponseEntity<Map<String, Object>> delete(@PathVariable String id) {
         // Check whether deletion was successful
         if (!feedbackService.delete(id)) return ResponseEntity.notFound().build();
+        // Return success response with deleted ID
         return ResponseEntity.ok(Map.of("deleted", true, "id", id));
     }
 }
