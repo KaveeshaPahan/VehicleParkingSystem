@@ -11,6 +11,7 @@ import java.util.Optional;
 @Service
 public class FeedbackService {
 
+    // Repository object used for feedback data operations
     private final FeedbackRepository repo;
 
     public FeedbackService(FeedbackRepository repo) {
