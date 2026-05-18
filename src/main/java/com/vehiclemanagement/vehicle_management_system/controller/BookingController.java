@@ -19,6 +19,8 @@ public class BookingController {
         this.bookingService = bookingService;
     }
 
+
+    //all
     @GetMapping
     public List<Booking> all(@RequestParam(value = "userId", required = false) String userId,
                              @RequestParam(value = "status", required = false) String status) {
