@@ -46,7 +46,7 @@ public class FeedbackService {
         if (feedback.getStatus() == null || feedback.getStatus().isBlank()) feedback.setStatus("OPEN");
         return repo.save(feedback);
     }
-
+    // Updates an existing feedback record
     public Optional<Feedback> update(String id, Feedback feedback) {
         feedback.setId(id);
         return repo.update(feedback);
