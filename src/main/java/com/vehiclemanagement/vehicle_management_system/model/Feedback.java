@@ -9,6 +9,7 @@ public class Feedback extends BaseEntity {
     private String userId;
     // Stores the subject/title of the feedback
     private String subject;
+    // Stores the detailed feedback message
     private String message;
     private int rating;        // 1 to 5
     private String status;     // OPEN, REVIEWED, RESOLVED
