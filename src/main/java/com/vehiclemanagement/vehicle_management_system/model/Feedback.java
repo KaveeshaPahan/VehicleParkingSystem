@@ -43,6 +43,7 @@ public class Feedback extends BaseEntity {
     public String getStatus() { return status; }  // Returns feedback status
     public void setStatus(String status) { this.status = status; }  // Sets feedback status
 
+    // Converts Feedback object into a text line for file storage
     @Override
     public String toLine() {
         return String.join(SEP,
