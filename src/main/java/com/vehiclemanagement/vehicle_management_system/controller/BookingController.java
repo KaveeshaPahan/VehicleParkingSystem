@@ -29,13 +29,15 @@ public class BookingController {
         return bookingService.getAll();
     }
 
+
+    //getbyid
     @GetMapping("/{id}")
     public ResponseEntity<Booking> byId(@PathVariable String id) {
         return bookingService.getById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-
+    //postrequest
     @PostMapping
     public ResponseEntity<Booking> create(@RequestBody Booking booking) {
         if (booking.getUserId() == null || booking.getSlotId() == null
