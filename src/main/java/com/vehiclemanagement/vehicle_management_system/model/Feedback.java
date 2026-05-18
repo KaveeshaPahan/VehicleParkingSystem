@@ -69,6 +69,7 @@ public class Feedback extends BaseEntity {
         f.setUserId(p[1]);
         f.setSubject(p[2]);
         f.setMessage(p[3]);
+        // Convert rating safely to integer
         try { f.setRating(Integer.parseInt(p[4])); } catch (NumberFormatException e) { f.setRating(0); }
 
         // Set remaining feedback details
