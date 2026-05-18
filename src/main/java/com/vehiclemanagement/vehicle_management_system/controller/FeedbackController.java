@@ -23,6 +23,7 @@ public class FeedbackController {
     @GetMapping
     public List<Feedback> all(@RequestParam(value = "q", required = false) String q,
                               @RequestParam(value = "userId", required = false) String userId) {
+        // Return feedback belonging to a specific user
         if (userId != null && !userId.isBlank()) return feedbackService.getByUser(userId);
         return q == null ? feedbackService.getAll() : feedbackService.search(q);
     }
