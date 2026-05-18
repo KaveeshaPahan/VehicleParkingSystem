@@ -40,7 +40,7 @@ public class FeedbackService {
                 (f.getStatus() != null && f.getStatus().toLowerCase().contains(q))
         ).toList();
     }
-
+    // Creates and saves a new feedback record
     public Feedback create(Feedback feedback) {
         if (feedback.getStatus() == null || feedback.getStatus().isBlank()) feedback.setStatus("OPEN");
         return repo.save(feedback);
