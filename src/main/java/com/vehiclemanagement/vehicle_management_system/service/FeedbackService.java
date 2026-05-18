@@ -52,6 +52,6 @@ public class FeedbackService {
         feedback.setId(id);
         return repo.update(feedback);
     }
-
+    // Deletes a feedback record using its ID
     public boolean delete(String id) { return repo.deleteById(id); }
 }
