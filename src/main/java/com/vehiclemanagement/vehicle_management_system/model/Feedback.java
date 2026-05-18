@@ -35,7 +35,7 @@ public class Feedback extends BaseEntity {
     public void setSubject(String subject) { this.subject = subject; } // Sets feedback subject
 
     public String getMessage() { return message; }  // Returns feedback message
-    public void setMessage(String message) { this.message = message; }
+    public void setMessage(String message) { this.message = message; }  // Sets feedback message
 
     public int getRating() { return rating; }
     public void setRating(int rating) { this.rating = rating; }
