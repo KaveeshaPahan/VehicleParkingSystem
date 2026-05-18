@@ -58,6 +58,7 @@ public class Feedback extends BaseEntity {
     }
     // Creates a Feedback object from a stored text line
     public static Feedback fromLine(String line) {
+        // Split stored data into parts
         String[] p = line.split(DELIM, -1);
         if (p.length < 8) return null;
         Feedback f = new Feedback();
