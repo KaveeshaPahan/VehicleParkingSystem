@@ -60,6 +60,7 @@ public class Feedback extends BaseEntity {
     public static Feedback fromLine(String line) {
         // Split stored data into parts
         String[] p = line.split(DELIM, -1);
+        // Return null if data format is invalid
         if (p.length < 8) return null;
         Feedback f = new Feedback();
         f.setId(p[0]);
