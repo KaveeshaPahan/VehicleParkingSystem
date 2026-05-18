@@ -15,8 +15,10 @@ public class Feedback extends BaseEntity {
     private int rating; // Stores feedback status such as OPEN, REVIEWED, or RESOLVED
     private String status;     // OPEN, REVIEWED, RESOLVED
 
+    // Default constructor
     public Feedback() { super(); }
 
+    // Parameterized constructor used to initialize feedback details
     public Feedback(String userId, String subject, String message, int rating, String status) {
         super();
         this.userId = userId;
@@ -26,7 +28,7 @@ public class Feedback extends BaseEntity {
         this.status = status;
     }
 
-    public String getUserId() { return userId; }
+    public String getUserId() { return userId; }  // Returns user ID
     public void setUserId(String userId) { this.userId = userId; }
 
     public String getSubject() { return subject; }
