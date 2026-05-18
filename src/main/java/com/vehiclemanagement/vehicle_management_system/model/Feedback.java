@@ -63,6 +63,8 @@ public class Feedback extends BaseEntity {
         // Return null if data format is invalid
         if (p.length < 8) return null;
         Feedback f = new Feedback();
+
+        // Set feedback properties from stored values
         f.setId(p[0]);
         f.setUserId(p[1]);
         f.setSubject(p[2]);
