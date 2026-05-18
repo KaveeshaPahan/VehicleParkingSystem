@@ -18,8 +18,10 @@ public class ParkingSlotService {
 
         this.repo = repo;
     }
-
-    public List<ParkingSlot> getAll() { return repo.findAll(); }
+    
+    //Retrieves a list of all parking slots from the database
+    public List<ParkingSlot> getAll() {
+        return repo.findAll(); }
 
     public Optional<ParkingSlot> getById(String id) { return repo.findById(id); }
 
