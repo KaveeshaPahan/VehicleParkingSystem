@@ -22,6 +22,7 @@ public class FeedbackService {
     // Returns all feedback records
     public List<Feedback> getAll() { return repo.findAll(); }
 
+    // Returns a feedback record using its ID
     public Optional<Feedback> getById(String id) { return repo.findById(id); }
 
     public List<Feedback> getByUser(String userId) {
