@@ -20,7 +20,7 @@ public class ParkingSlot extends BaseEntity {
     //Parameterized Constructor
     public ParkingSlot(String slotNumber, String location, String type,
                        double hourlyRate, String status) {
-        super();
+        super();                        //call parent class constructor
         this.slotNumber = slotNumber;
         this.location = location;
         this.type = type;
