@@ -12,8 +12,10 @@ public class Vehicle extends BaseEntity {
     private String color;
     private int year;
 
+    //default Constructor
     public Vehicle() { super(); }
 
+    //Parameterized Constructor
     public Vehicle(String ownerId, String plateNumber, String brand, String model,
                    String type, String color, int year) {
         super();
@@ -26,6 +28,7 @@ public class Vehicle extends BaseEntity {
         this.year = year;
     }
 
+    //create Getters and Setters
     public String getOwnerId() { return ownerId; }
     public void setOwnerId(String ownerId) { this.ownerId = ownerId; }
 
