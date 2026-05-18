@@ -12,7 +12,7 @@ public class Feedback extends BaseEntity {
     // Stores the detailed feedback message
     private String message;
     // Stores user rating value from 1 to 5
-    private int rating;        // 1 to 5
+    private int rating; // Stores feedback status such as OPEN, REVIEWED, or RESOLVED
     private String status;     // OPEN, REVIEWED, RESOLVED
 
     public Feedback() { super(); }
