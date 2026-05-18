@@ -15,6 +15,7 @@ public class FeedbackController {
 
     private final FeedbackService feedbackService;
 
+    // Service layer object used to perform business logic operations
     public FeedbackController(FeedbackService feedbackService) {
         this.feedbackService = feedbackService;
     }
