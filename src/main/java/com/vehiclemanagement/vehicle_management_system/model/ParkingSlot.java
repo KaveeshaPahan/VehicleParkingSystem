@@ -12,7 +12,10 @@ public class ParkingSlot extends BaseEntity {
     private String status;      // AVAILABLE, OCCUPIED, MAINTENANCE
 
     //Default Constructor
-    public ParkingSlot() { super(); }
+    
+    public ParkingSlot() {
+        super();
+    }
 
     //Parameterized Constructor
     public ParkingSlot(String slotNumber, String location, String type,
