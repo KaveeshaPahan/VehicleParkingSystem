@@ -44,6 +44,7 @@ public class FeedbackController {
                 || f.getMessage() == null || f.getMessage().isBlank()) {
             return ResponseEntity.badRequest().build();
         }
+        // Save feedback to database
         return ResponseEntity.ok(feedbackService.create(f));
     }
 
