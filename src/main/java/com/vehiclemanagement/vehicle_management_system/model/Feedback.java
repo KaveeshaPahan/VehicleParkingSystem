@@ -70,6 +70,8 @@ public class Feedback extends BaseEntity {
         f.setSubject(p[2]);
         f.setMessage(p[3]);
         try { f.setRating(Integer.parseInt(p[4])); } catch (NumberFormatException e) { f.setRating(0); }
+
+        // Set remaining feedback details
         f.setStatus(p[5]);
         f.setCreatedAt(LocalDateTime.parse(p[6], DATE_FORMAT));
         f.setUpdatedAt(LocalDateTime.parse(p[7], DATE_FORMAT));
