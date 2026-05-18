@@ -17,8 +17,11 @@ public class Payment extends BaseEntity {
     private LocalDateTime paidAt;
     private String notes;
 
+
+    // Default no-argument constructor initializing base properties
     public Payment() { super(); }
 
+    // Parameterized constructor to instantiate a payment with details
     public Payment(String bookingId, String userId, double amount, String method,
                    String transactionId, String status, LocalDateTime paidAt, String notes) {
         super();
@@ -32,6 +35,7 @@ public class Payment extends BaseEntity {
         this.notes = notes;
     }
 
+    // Getter and setter methods providing controlled access to private fields (Encapsulation)
     public String getBookingId() { return bookingId; }
     public void setBookingId(String bookingId) { this.bookingId = bookingId; }
 
@@ -56,6 +60,7 @@ public class Payment extends BaseEntity {
     public String getNotes() { return notes; }
     public void setNotes(String notes) { this.notes = notes; }
 
+    // Serializes the object fields into a single delimited string for file storage
     @Override
     public String toLine() {
         return String.join(SEP,
@@ -72,17 +77,24 @@ public class Payment extends BaseEntity {
                 getUpdatedAt().format(DATE_FORMAT));
     }
 
+    // Deserializes a delimited string line back into a structured Payment object
     public static Payment fromLine(String line) {
         String[] p = line.split(DELIM, -1);
+
+        // Ensure the array contains all required data attributes before parsing
         if (p.length < 11) return null;
         Payment x = new Payment();
         x.setId(p[0]);
         x.setBookingId(p[1]);
         x.setUserId(p[2]);
+
+        // Safely parse the decimal value for amount with a fallback to zero on error
         try { x.setAmount(Double.parseDouble(p[3])); } catch (NumberFormatException e) { x.setAmount(0.0); }
         x.setMethod(p[4]);
         x.setTransactionId(p[5]);
         x.setStatus(p[6]);
+
+        // Parse date values from string tokens back into LocalDateTime objects
         x.setPaidAt(p[7].isEmpty() ? null : LocalDateTime.parse(p[7], DATE_FORMAT));
         x.setNotes(p[8]);
         x.setCreatedAt(LocalDateTime.parse(p[9], DATE_FORMAT));
