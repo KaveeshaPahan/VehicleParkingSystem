@@ -27,6 +27,7 @@ public class ParkingSlotService {
     public Optional<ParkingSlot> getById(String id) {
         return repo.findById(id); }
 
+    //Fetches all slots from the database and filters for those with an "AVAILABLE" status
     public List<ParkingSlot> getAvailable() {
         return repo.findAll().stream()
                 .filter(s -> "AVAILABLE".equalsIgnoreCase(s.getStatus())).toList();
