@@ -68,6 +68,8 @@ public class AuthController {
         User saved = userService.create(user);
         // Remove password before sending response
         saved.setPassword(null);
+
+        // Return successful registration response
         return ResponseEntity.ok(Map.of("user", saved));
     }
 }
