@@ -38,6 +38,7 @@ public class AuthController {
         Optional<User> match = userService.getAll().stream()
                 .filter(u -> email.equalsIgnoreCase(u.getEmail()) && password.equals(u.getPassword()))
                 .findFirst();
+        // If no matching user found, return Unauthorized status
         if (match.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "Invalid email or password"));
