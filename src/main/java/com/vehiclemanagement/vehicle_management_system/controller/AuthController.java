@@ -25,6 +25,8 @@ public class AuthController {
     // API endpoint for user login
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> body) {
+
+        // Get email and password from request body
         String email = body.getOrDefault("email", "").trim();
         String password = body.getOrDefault("password", "");
         if (email.isEmpty() || password.isEmpty()) {
