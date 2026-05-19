@@ -9,34 +9,45 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 import java.util.Optional;
 
-@RestController
-@RequestMapping("/api/auth")
-@CrossOrigin(origins = "*")
+@RestController  // Marks this class as a REST API controller
+@RequestMapping("/api/auth")  // Base URL for all authentication-related endpoints
+@CrossOrigin(origins = "*") // Allows requests from any frontend/domain
 public class AuthController {
 
+    // Service layer object used to handle user-related operations
     private final UserService userService;
 
+    // Constructor Injection for UserService
     public AuthController(UserService userService) {
         this.userService = userService;
     }
 
+    // API endpoint for user login
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> body) {
+
+        // Get email and password from request body
         String email = body.getOrDefault("email", "").trim();
         String password = body.getOrDefault("password", "");
+
+        // Validate input fields
         if (email.isEmpty() || password.isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of("error", "Email and password are required"));
         }
+        // Search user list for matching email and password
         Optional<User> match = userService.getAll().stream()
                 .filter(u -> email.equalsIgnoreCase(u.getEmail()) && password.equals(u.getPassword()))
                 .findFirst();
+        // If no matching user found, return Unauthorized status
         if (match.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "Invalid email or password"));
         }
+        // Get matched user
         User u = match.get();
         // never send password back to the client
         u.setPassword(null);
+        // Return successful login response
         return ResponseEntity.ok(Map.of("user", u));
     }
 
@@ -55,7 +66,11 @@ public class AuthController {
         }
         if (user.getRole() == null || user.getRole().isBlank()) user.setRole("CUSTOMER");
         User saved = userService.create(user);
+
+        // Remove password before sending response
         saved.setPassword(null);
+
+        // Return successful registration response
         return ResponseEntity.ok(Map.of("user", saved));
     }
 }
