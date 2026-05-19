@@ -19,7 +19,7 @@ public class ParkingSlot extends BaseEntity {
         super();
     }
 
-    //Parameterized Constructor
+    //Parameterized Constructor-use when creating a brand-new parking slot. It lets you pass in all the required details right at birth.
     public ParkingSlot(String slotNumber, String location, String type,
                        double hourlyRate, String status) {
         super();                        //call parent class constructor
