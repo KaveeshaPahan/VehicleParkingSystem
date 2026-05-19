@@ -11,7 +11,7 @@ import java.util.Optional;
 
 @RestController  // Marks this class as a REST API controller
 @RequestMapping("/api/auth")  // Base URL for all authentication-related endpoints
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*") // Allows requests from any frontend/domain
 public class AuthController {
 
     private final UserService userService;
