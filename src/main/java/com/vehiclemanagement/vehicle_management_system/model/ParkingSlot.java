@@ -11,6 +11,7 @@ public class ParkingSlot extends BaseEntity {
     private double hourlyRate;
     private String status;      // AVAILABLE, OCCUPIED, MAINTENANCE
 
+    //Constructor Overloading
     //Default Constructor
 
     public ParkingSlot() {
