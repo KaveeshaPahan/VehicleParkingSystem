@@ -33,6 +33,7 @@ public class VehicleController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    // create vehicle
     @PostMapping
     public ResponseEntity<Vehicle> create(@RequestBody Vehicle v) {
         if (v.getPlateNumber() == null || v.getPlateNumber().isBlank()) {
@@ -41,6 +42,7 @@ public class VehicleController {
         return ResponseEntity.ok(vehicleService.create(v));
     }
 
+    //update vehicle
     @PutMapping("/{id}")
     public ResponseEntity<Vehicle> update(@PathVariable String id, @RequestBody Vehicle v) {
         return vehicleService.update(id, v)
@@ -48,6 +50,7 @@ public class VehicleController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    //delete vehicle
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, Object>> delete(@PathVariable String id) {
         if (!vehicleService.delete(id)) return ResponseEntity.notFound().build();
