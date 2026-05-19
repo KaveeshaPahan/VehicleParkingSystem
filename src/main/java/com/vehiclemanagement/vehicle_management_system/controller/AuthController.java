@@ -66,6 +66,7 @@ public class AuthController {
         }
         if (user.getRole() == null || user.getRole().isBlank()) user.setRole("CUSTOMER");
         User saved = userService.create(user);
+
         // Remove password before sending response
         saved.setPassword(null);
 
