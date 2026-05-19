@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController  // Marks this class as a REST API controller
-@RequestMapping("/api/auth")
+@RequestMapping("/api/auth")  // Base URL for all authentication-related endpoints
 @CrossOrigin(origins = "*")
 public class AuthController {
 
