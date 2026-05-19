@@ -14,6 +14,7 @@ import java.util.Optional;
 @CrossOrigin(origins = "*") // Allows requests from any frontend/domain
 public class AuthController {
 
+    // Service layer object used to handle user-related operations
     private final UserService userService;
 
     public AuthController(UserService userService) {
