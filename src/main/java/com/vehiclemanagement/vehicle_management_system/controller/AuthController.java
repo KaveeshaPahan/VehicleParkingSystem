@@ -29,6 +29,8 @@ public class AuthController {
         // Get email and password from request body
         String email = body.getOrDefault("email", "").trim();
         String password = body.getOrDefault("password", "");
+
+        // Validate input fields
         if (email.isEmpty() || password.isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of("error", "Email and password are required"));
         }
