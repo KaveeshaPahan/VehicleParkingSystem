@@ -34,6 +34,7 @@ public class AuthController {
         if (email.isEmpty() || password.isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of("error", "Email and password are required"));
         }
+        // Search user list for matching email and password
         Optional<User> match = userService.getAll().stream()
                 .filter(u -> email.equalsIgnoreCase(u.getEmail()) && password.equals(u.getPassword()))
                 .findFirst();
