@@ -17,6 +17,7 @@ public class AuthController {
     // Service layer object used to handle user-related operations
     private final UserService userService;
 
+    // Constructor Injection for UserService
     public AuthController(UserService userService) {
         this.userService = userService;
     }
