@@ -60,7 +60,7 @@ public class ParkingSlot extends BaseEntity {
                 getUpdatedAt().format(DATE_FORMAT));
     }
 
-    //fromLine method
+    //fromLine method-converts ParkingSlot object into a single, structured line of text
     public static ParkingSlot fromLine(String line) {
         String[] p = line.split(DELIM, -1);
         if (p.length < 8) return null;
