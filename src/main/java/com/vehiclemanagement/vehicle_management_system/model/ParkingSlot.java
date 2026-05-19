@@ -69,7 +69,7 @@ public class ParkingSlot extends BaseEntity {
         s.setSlotNumber(p[1]);
         s.setLocation(p[2]);
         s.setType(p[3]);
-        try { s.setHourlyRate(Double.parseDouble(p[4])); } catch (NumberFormatException e) { s.setHourlyRate(0.0); }
+        try { s.setHourlyRate(Double.parseDouble(p[4])); } catch (NumberFormatException e) { s.setHourlyRate(0.0); } //To prevent the program from crashing
         s.setStatus(p[5]);
         s.setCreatedAt(LocalDateTime.parse(p[6], DATE_FORMAT));
         s.setUpdatedAt(LocalDateTime.parse(p[7], DATE_FORMAT));
