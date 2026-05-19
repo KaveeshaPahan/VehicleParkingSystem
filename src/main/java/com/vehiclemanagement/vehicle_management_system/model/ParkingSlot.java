@@ -49,8 +49,8 @@ public class ParkingSlot extends BaseEntity {
     //toLine method
     @Override
     public String toLine() {
-        return String.join(SEP,
-                safe(getId()),
+        return String.join(SEP,         //takes a list of text pieces and glues them together using a separator
+                safe(getId()),          //checks if a value is null, and if it is, it converts it into an empty string "" or "N/A" so system doesn't crash with a NullPointerException
                 safe(slotNumber),
                 safe(location),
                 safe(type),
