@@ -14,7 +14,8 @@ public class ParkingSlot extends BaseEntity {
     //Constructor Overloading-providing multiple ways to initialize an object
     //Default Constructor
 
-    public ParkingSlot() {
+    public ParkingSlot() {             //creates a blank, empty ParkingSlot object without setting any data upfront.
+
         super();
     }
 
