@@ -47,6 +47,7 @@ public class AuthController {
         User u = match.get();
         // never send password back to the client
         u.setPassword(null);
+        // Return successful login response
         return ResponseEntity.ok(Map.of("user", u));
     }
 
