@@ -54,7 +54,7 @@ public class ParkingSlot extends BaseEntity {
                 safe(slotNumber),
                 safe(location),
                 safe(type),
-                String.valueOf(hourlyRate),
+                String.valueOf(hourlyRate),     //converts the number (e.g., 15.50) into plain text ("15.50").
                 safe(status),
                 getCreatedAt().format(DATE_FORMAT),
                 getUpdatedAt().format(DATE_FORMAT));
