@@ -69,6 +69,9 @@ public class BookingService {
         return saved;
     }
 
+
+    //update
+
     public Optional<Booking> update(String id, Booking booking) {
         booking.setId(id);
         Optional<Booking> updated = repo.update(booking);
@@ -85,6 +88,8 @@ public class BookingService {
         }
         return updated;
     }
+
+    //delete
 
     public boolean delete(String id) {
         Optional<Booking> b = repo.findById(id);

@@ -19,6 +19,8 @@ public class BookingController {
         this.bookingService = bookingService;
     }
 
+
+    //all
     @GetMapping
     public List<Booking> all(@RequestParam(value = "userId", required = false) String userId,
                              @RequestParam(value = "status", required = false) String status) {
@@ -27,13 +29,15 @@ public class BookingController {
         return bookingService.getAll();
     }
 
+
+    //getbyid
     @GetMapping("/{id}")
     public ResponseEntity<Booking> byId(@PathVariable String id) {
         return bookingService.getById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-
+    //postrequest
     @PostMapping
     public ResponseEntity<Booking> create(@RequestBody Booking booking) {
         if (booking.getUserId() == null || booking.getSlotId() == null
@@ -49,7 +53,7 @@ public class BookingController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-
+//delete Booking 
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, Object>> delete(@PathVariable String id) {
         if (!bookingService.delete(id)) return ResponseEntity.notFound().build();
