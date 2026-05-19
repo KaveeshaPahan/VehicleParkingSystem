@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 import java.util.Optional;
 
-@RestController
+@RestController  // Marks this class as a REST API controller
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "*")
 public class AuthController {
