@@ -43,6 +43,7 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "Invalid email or password"));
         }
+        // Get matched user
         User u = match.get();
         // never send password back to the client
         u.setPassword(null);
