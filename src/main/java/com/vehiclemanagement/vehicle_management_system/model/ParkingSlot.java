@@ -46,7 +46,7 @@ public class ParkingSlot extends BaseEntity {
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
 
-    //toLine method
+    //toLine method--converts ParkingSlot object into a single, structured line of text
     @Override
     public String toLine() {
         return String.join(SEP,         //takes a list of text pieces and glues them together using a separator
@@ -60,9 +60,9 @@ public class ParkingSlot extends BaseEntity {
                 getUpdatedAt().format(DATE_FORMAT));
     }
 
-    //fromLine method-converts ParkingSlot object into a single, structured line of text
+    //fromLine method
     public static ParkingSlot fromLine(String line) {
-        String[] p = line.split(DELIM, -1);
+        String[] p = line.split(DELIM, -1);         //breaks the text string into an array of smaller strings (p) wherever it finds your delimiter (like a comma)
         if (p.length < 8) return null;
         ParkingSlot s = new ParkingSlot();
         s.setId(p[0]);
