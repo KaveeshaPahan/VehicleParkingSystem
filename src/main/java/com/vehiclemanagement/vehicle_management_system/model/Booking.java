@@ -2,6 +2,8 @@ package com.vehiclemanagement.vehicle_management_system.model;
 
 import java.time.LocalDateTime;
 
+//baseentity
+
 public class Booking extends BaseEntity {
 
     private String userId;
@@ -48,6 +50,8 @@ public class Booking extends BaseEntity {
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
 
+
+    //override
     @Override
     public String toLine() {
         return String.join(SEP,
