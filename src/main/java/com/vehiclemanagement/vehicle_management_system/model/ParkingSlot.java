@@ -1,6 +1,6 @@
 package com.vehiclemanagement.vehicle_management_system.model;
 
-import java.time.LocalDateTime;
+import java.time.LocalDateTime;     // Used for tracking timestamps like booking starts, ends, and durations
 
 //inheritance
 public class ParkingSlot extends BaseEntity {
