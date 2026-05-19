@@ -60,7 +60,7 @@ public class ParkingSlot extends BaseEntity {
                 getUpdatedAt().format(DATE_FORMAT));
     }
 
-    //fromLine method
+    //fromLine method--taking a single raw line of text (like a row read out of a .csv or .txt database file) and rebuilding a complete Java ParkingSlot object out of it.
     public static ParkingSlot fromLine(String line) {
         String[] p = line.split(DELIM, -1);         //breaks the text string into an array of smaller strings (p) wherever it finds your delimiter (like a comma)
         if (p.length < 8) return null;
