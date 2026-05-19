@@ -22,6 +22,7 @@ public class AuthController {
         this.userService = userService;
     }
 
+    // API endpoint for user login
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> body) {
         String email = body.getOrDefault("email", "").trim();
