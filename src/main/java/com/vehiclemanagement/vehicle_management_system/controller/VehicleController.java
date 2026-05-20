@@ -19,6 +19,7 @@ public class VehicleController {
         this.vehicleService = vehicleService;
     }
 
+    //view vehicle page without any filters
     @GetMapping
     public List<Vehicle> all(@RequestParam(value = "q", required = false) String q,
                              @RequestParam(value = "ownerId", required = false) String ownerId) {
