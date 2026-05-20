@@ -57,6 +57,6 @@ public class ParkingSlotController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, Object>> delete(@PathVariable String id) {
         if (!slotService.delete(id)) return ResponseEntity.notFound().build();
-        return ResponseEntity.ok(Map.of("deleted", true, "id", id));
+        return ResponseEntity.ok(Map.of("deleted", true, "id", id));    //This creates a simple JSON confirmation response
     }
 }
