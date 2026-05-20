@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
-@RestController
-@RequestMapping("/api/slots")
-@CrossOrigin(origins = "*")
+@RestController               //Marks this class as a REST API controller. Automatically converts return values to JSON
+@RequestMapping("/api/slots")   //All endpoints in this class start with /api/slots
+@CrossOrigin(origins = "*")     //Allows requests from any domain (frontend on a different port can still call this API)
 public class ParkingSlotController {
 
     //Dependency Injection
