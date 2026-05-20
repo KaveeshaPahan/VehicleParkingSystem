@@ -33,6 +33,7 @@ public class ParkingSlotService {
                 .filter(s -> "AVAILABLE".equalsIgnoreCase(s.getStatus())).toList();
     }
 
+    //// Performs a case-insensitive keyword search across slot number, location, type, and status fields.
     public List<ParkingSlot> search(String query) {
         if (query == null || query.isBlank()) return getAll();
         String q = query.toLowerCase();
