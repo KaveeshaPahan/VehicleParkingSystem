@@ -26,6 +26,7 @@ public class VehicleController {
         return q == null ? vehicleService.getAll() : vehicleService.search(q);
     }
 
+    //view specific vehicle details by id
     @GetMapping("/{id}")
     public ResponseEntity<Vehicle> byId(@PathVariable String id) {
         return vehicleService.getById(id)
